@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { connectDB } from "./config/mongoose";
 import UserController from "./controllers/userController";
+import AuthController from "./controllers/authController";
 import LawyerController from "./controllers/lawyerController";
 import ConsultationController from "./controllers/consultationController";
 
@@ -17,6 +18,10 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to HalloHukum API" });
 });
+
+// Auth routes
+app.post("/register", AuthController.register);
+app.post("/login", AuthController.login);
 
 // User routes
 app.post("/users", UserController.createUser);

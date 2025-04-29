@@ -5,5 +5,10 @@ export interface IUser extends Document {
   email: string;
   phone: string;
   password: string;
+  birthdate?: string;
+  gender?: "male" | "female";
+  role: "client" | "lawyer" | "admin";
+  location?: string;
   createdAt: Date;
+  updatedAt: Date;
 }

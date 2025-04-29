@@ -1,11 +1,18 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 
 export interface IConsultation extends Document {
-  userId: Types.ObjectId;
-  lawyerId: Types.ObjectId;
-  method: "chat" | "call" | "video";
-  status: "scheduled" | "completed" | "canceled";
-  scheduledTime?: Date;
+  userId: string;
+  lawyerId: string;
+  categoryId: string;
+  caseType: string;
+  problemDescription: string;
+  legalBasis: string;
+  analysis: string;
+  conclusionAndAdvice: string;
+  chatId: string;
+  disclaimer: string;
+  expiredAt: string;
+  status: "active" | "expired";
   createdAt: Date;
   updatedAt: Date;
 }

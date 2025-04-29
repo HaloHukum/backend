@@ -24,8 +24,28 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       required: true,
     },
+    birthdate: {
+      type: Date,
+      required: false,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      required: false,
+    },
+    role: {
+      type: String,
+      enum: ["client", "lawyer", "admin"],
+      required: true,
+      default: "client",
+    },
+    location: {
+      type: String,
+      required: false,
+      trim: true,
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 const User = mongoose.model<IUser>("User", userSchema);
