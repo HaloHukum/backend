@@ -4,29 +4,53 @@ import { IConsultation } from "../interfaces/consultation.interface";
 const consultationSchema: Schema<IConsultation> = new Schema(
   {
     userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
     },
     lawyerId: {
-      type: Schema.Types.ObjectId,
-      ref: "Lawyer",
+      type: String,
       required: true,
     },
-    method: {
+    categoryId: {
       type: String,
-      enum: ["chat", "call", "video"],
+      required: true,
+    },
+    caseType: {
+      type: String,
+      required: true,
+    },
+    problemDescription: {
+      type: String,
+      required: true,
+    },
+    legalBasis: {
+      type: String,
+      required: true,
+    },
+    analysis: {
+      type: String,
+      required: true,
+    },
+    conclusionAndAdvice: {
+      type: String,
+      required: true,
+    },
+    chatId: {
+      type: String,
+      required: true,
+    },
+    disclaimer: {
+      type: String,
+      required: true,
+    },
+    expiredAt: {
+      type: String,
       required: true,
     },
     status: {
       type: String,
-      enum: ["scheduled", "completed", "canceled"],
-      required: false,
-      default: "scheduled",
-    },
-    scheduledTime: {
-      type: Date,
-      default: null,
+      required: true,
+      enum: ["active", "expired"],
     },
   },
   { timestamps: true }
