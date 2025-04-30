@@ -3,11 +3,13 @@ import { IUser } from "../interfaces/user.interface";
 
 const userSchema: Schema<IUser> = new Schema(
   {
-    username: {
+    fullName: {
       type: String,
       required: true,
-      unique: true,
-      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
     },
     email: {
       type: String,
@@ -16,33 +18,29 @@ const userSchema: Schema<IUser> = new Schema(
       trim: true,
       lowercase: true,
     },
-    phone: {
-      type: String,
-      required: true,
-    },
     password: {
       type: String,
       required: true,
     },
-    birthdate: {
+    dateOfBirth: {
       type: Date,
-      required: false,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+      trim: true,
     },
     gender: {
       type: String,
       enum: ["male", "female"],
-      required: false,
+      required: true,
     },
     role: {
       type: String,
       enum: ["client", "lawyer", "admin"],
       required: true,
       default: "client",
-    },
-    location: {
-      type: String,
-      required: false,
-      trim: true,
     },
   },
   { timestamps: true }
