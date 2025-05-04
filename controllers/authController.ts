@@ -13,7 +13,7 @@ export default class AuthController {
       if (!parsed.success) {
         return res
           .status(400)
-          .json({ errors: parsed.error.flatten().fieldErrors});
+          .json({ errors: parsed.error.flatten().fieldErrors });
       }
 
       const {
@@ -78,17 +78,9 @@ export default class AuthController {
         return res.status(401).json({ error: "Invalid email/password" });
       }
 
-      // Generate OTP and return it in the response
+      // Generate OTP and store it in Redis
       const otp = otpService.generateOTP();
-      const expiresAt = new Date();
-      expiresAt.setMinutes(expiresAt.getMinutes() + 5); // OTP expires in 5 minutes
-
-      // Store OTP in memory
-      otpService.otpMap.set(email, {
-        email,
-        otp,
-        expiresAt,
-      });
+      await otpService.storeOTP(email, otp);
 
       res.status(200).json({
         message: "Login successful",
@@ -109,7 +101,7 @@ export default class AuthController {
         return res.status(400).json({ error: "Email and OTP are required" });
       }
 
-      const isValidOTP = otpService.verifyOTP(email, otp);
+      const isValidOTP = await otpService.verifyOTP(email, otp);
       if (!isValidOTP) {
         return res.status(401).json({ error: "Invalid or expired OTP" });
       }

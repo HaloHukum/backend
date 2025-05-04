@@ -1,5 +1,5 @@
-import nodemailer from "nodemailer";
 import { randomInt } from "crypto";
+import redis from "../config/redis";
 
 //interface OTPData
 interface OTPData {
@@ -9,60 +9,44 @@ interface OTPData {
 }
 
 class OTPService {
-  public otpMap: Map<string, OTPData> = new Map();
-  private transporter: nodemailer.Transporter;
-
-  constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-  }
+  private readonly OTP_PREFIX = "otp:";
+  private readonly OTP_EXPIRY = 300; // 5 minutes in seconds
 
   public generateOTP(): string {
     return randomInt(100000, 999999).toString();
   }
 
-  async sendOTP(email: string): Promise<string> {
-    const otp = this.generateOTP();
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 5); // OTP expires in 5 minutes
-
+  async storeOTP(email: string, otp: string): Promise<void> {
+    const key = `${this.OTP_PREFIX}${email}`;
     const otpData: OTPData = {
       email,
       otp,
-      expiresAt,
+      expiresAt: new Date(Date.now() + this.OTP_EXPIRY * 1000),
     };
 
-    this.otpMap.set(email, otpData);
-
-    try {
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "Your Login OTP",
-        text: `Your OTP for login is: ${otp}. This OTP will expire in 5 minutes.`,
-      });
-
-      return otp;
-    } catch (error) {
-      this.otpMap.delete(email);
-      throw new Error("Failed to send OTP email");
-    }
+    await redis.setex(key, this.OTP_EXPIRY, JSON.stringify(otpData));
   }
 
-  verifyOTP(email: string, otp: string): boolean {
-    const otpData = this.otpMap.get(email);
+  async getOTP(email: string): Promise<OTPData | null> {
+    const key = `${this.OTP_PREFIX}${email}`;
+    const data = await redis.get(key);
+
+    if (!data) {
+      return null;
+    }
+
+    return JSON.parse(data) as OTPData;
+  }
+
+  async verifyOTP(email: string, otp: string): Promise<boolean> {
+    const otpData = await this.getOTP(email);
 
     if (!otpData) {
       return false;
     }
 
     if (otpData.expiresAt < new Date()) {
-      this.otpMap.delete(email);
+      await this.deleteOTP(email);
       return false;
     }
 
@@ -70,8 +54,13 @@ class OTPService {
       return false;
     }
 
-    this.otpMap.delete(email);
+    await this.deleteOTP(email);
     return true;
+  }
+
+  private async deleteOTP(email: string): Promise<void> {
+    const key = `${this.OTP_PREFIX}${email}`;
+    await redis.del(key);
   }
 }
 
