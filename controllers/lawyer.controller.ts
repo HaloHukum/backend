@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import Lawyer from "../models/lawyer";
+
+import Lawyer from "../models/lawyer.model";
 
 class LawyerController {
   static async createLawyer(req: Request, res: Response) {

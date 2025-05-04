@@ -1,13 +1,9 @@
 import mongoose, { Schema } from "mongoose";
+
 import { ICategory } from "../interfaces/category.interface";
 
 const categorySchema: Schema<ICategory> = new Schema(
   {
-    id: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     title: {
       type: String,
       required: true,

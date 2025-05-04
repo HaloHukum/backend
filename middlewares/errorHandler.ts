@@ -1,5 +1,4 @@
-import { Request, Response, NextFunction } from "express";
-import { Error as MongooseError } from "mongoose";
+import { NextFunction, Request, Response } from "express";
 
 type CustomError = {
   name: string;
@@ -9,9 +8,9 @@ type CustomError = {
 
 export function errorHandler(
   err: CustomError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void {
   switch (err.name) {
     case "ValidationError": // Mongoose validation error
