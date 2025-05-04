@@ -1,88 +1,95 @@
 import { Request, Response } from "express";
-import User from "../models/user.model";
-import { comparePassword, hashPassword } from "../utils/bcrypt.util";
-import { signToken } from "../utils/jwt.util";
-import { loginSchema, registerSchema } from "../interfaces/user.interface";
+import AuthService from "../services/auth.service";
+import { IUser } from "../interfaces/user.interface";
+
+interface AuthenticatedRequest extends Request {
+  user?: IUser;
+}
 
 export default class AuthController {
   static async register(req: Request, res: Response) {
-    //* 1. POST /register
     try {
-      const parsed = registerSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res
-          .status(400)
-          .json({ errors: parsed.error.flatten().fieldErrors });
-      }
-
-      const {
-        fullName,
-        phone,
-        email,
-        password,
-        dateOfBirth,
-        city,
-        gender,
-        role,
-      } = parsed.data;
-
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res
-          .status(400)
-          .json({ errors: { email: ["Email already exists"] } });
-      }
-
-      const user = await User.create({
-        fullName,
-        phone,
-        email,
-        password: hashPassword(password),
-        dateOfBirth,
-        city,
-        gender,
-        role: role || "client",
-      });
-
-      res.status(201).json({
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      });
+      const result = await AuthService.register(req.body);
+      return res.status(201).json(result);
     } catch (error) {
       console.error("register error:", error);
-      res.status(500).json({ error: "Error during register" });
+      if (error instanceof Error) {
+        try {
+          const errorData = JSON.parse(error.message);
+          return res.status(400).json({ errors: errorData });
+        } catch {
+          return res.status(500).json({ error: "Error during register" });
+        }
+      }
+      return res.status(500).json({ error: "Error during register" });
     }
   }
 
   static async login(req: Request, res: Response) {
-    //* 2. POST /login
     try {
-      const parsed = loginSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res
-          .status(400)
-          .json({ errors: parsed.error.flatten().fieldErrors });
-      }
-
-      const { email, password } = parsed.data;
-
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(401).json({ error: "Invalid email/password" });
-      }
-
-      const isValidatePassword = comparePassword(password, user.password);
-      if (!isValidatePassword) {
-        return res.status(401).json({ error: "Invalid email/password" });
-      }
-
-      const access_token = signToken({ id: user._id });
-
-      res.status(200).json({ access_token });
+      const result = await AuthService.login(req.body);
+      return res.status(200).json(result);
     } catch (error) {
       console.error("login error:", error);
-      res.status(500).json({ error: "Error during login" });
+      if (error instanceof Error) {
+        if (error.message === "Invalid email/password") {
+          return res.status(401).json({ error: error.message });
+        }
+        try {
+          const errorData = JSON.parse(error.message);
+          return res.status(400).json({ errors: errorData });
+        } catch {
+          return res.status(500).json({ error: "Error during login" });
+        }
+      }
+      return res.status(500).json({ error: "Error during login" });
+    }
+  }
+
+  static async getMe(req: AuthenticatedRequest, res: Response) {
+    try {
+      const userId = req.user?._id?.toString();
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const result = await AuthService.getMe(userId);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("getMe error:", error);
+      if (error instanceof Error && error.message === "User not found") {
+        return res.status(404).json({ error: error.message });
+      }
+      return res.status(500).json({ error: "Error getting user profile" });
+    }
+  }
+
+  static async updateMe(req: AuthenticatedRequest, res: Response) {
+    try {
+      const userId = req.user?._id?.toString();
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
+      const result = await AuthService.updateMe(userId, req.body);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("updateMe error:", error);
+      if (error instanceof Error) {
+        if (error.message === "User not found") {
+          return res.status(404).json({ error: error.message });
+        }
+        if (error.message === "Failed to update user") {
+          return res.status(400).json({ error: error.message });
+        }
+        try {
+          const errorData = JSON.parse(error.message);
+          return res.status(400).json({ errors: errorData });
+        } catch {
+          return res.status(500).json({ error: "Error updating user profile" });
+        }
+      }
+      return res.status(500).json({ error: "Error updating user profile" });
     }
   }
 }

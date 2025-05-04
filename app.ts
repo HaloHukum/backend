@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
+
 import { connectDB } from "./configs/mongoose.config";
+import { errorHandler } from "./middlewares/errorHandler";
 import routes from "./routes/route";
 
 dotenv.config(); // Load .env first!
@@ -18,11 +20,23 @@ app.get("/", (req, res) => {
 
 app.use("/", routes);
 
+// Error handling middleware must be registered last
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    errorHandler(err, req, res, next);
+  }
+);
+
 // Connect to MongoDB and then start server
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+    console.info(`🚀 Server is running on port ${PORT}`);
   });
 };
 

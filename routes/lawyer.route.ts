@@ -1,4 +1,5 @@
 import express from "express";
+
 import LawyerController from "../controllers/lawyer.controller";
 
 const router = express.Router();

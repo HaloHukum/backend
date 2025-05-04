@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import Lawyer from "../models/lawyer.model";
 
 class LawyerController {

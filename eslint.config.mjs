@@ -1,35 +1,24 @@
 // eslint.config.mjs
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+import parser from "@typescript-eslint/parser";
+import plugin from "@typescript-eslint/eslint-plugin";
 import eslintConfigPrettier from "eslint-config-prettier";
 import unusedImports from "eslint-plugin-unused-imports";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-export default [
-  ...tseslint.configs.recommended,
-  eslintConfigPrettier, // Disable conflicting rules with Prettier
-
+export default defineConfig([
   {
     files: ["**/*.ts"],
     languageOptions: {
-      parser: tseslint.parser,
+      parser,
       parserOptions: {
         ecmaVersion: "latest",
-        sourceType: "commonjs", // Express backend
-        project: "./tsconfig.json", // Optional if using type-aware linting
+        sourceType: "commonjs",
+        project: "./tsconfig.json",
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint.plugin,
+      "@typescript-eslint": plugin,
       "unused-imports": unusedImports,
       "simple-import-sort": simpleImportSort,
     },
@@ -68,13 +57,14 @@ export default [
         "error",
         {
           groups: [
-            ["^node:"], // Node built-ins
-            ["^@?\\w"], // Packages
-            ["^(@|src)/"], // Absolute aliases (optional)
-            ["^\\."], // Relative imports
+            ["^node:"],
+            ["^@?\\w"],
+            ["^(@|src)/"],
+            ["^\\."],
           ],
         },
       ],
     },
   },
-];
+  eslintConfigPrettier,
+]);

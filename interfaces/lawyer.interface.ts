@@ -1,22 +1,18 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface ILawyer extends Document {
-  name: string;
-  qualification: string;
-  rating: number;
-  areas: string[];
-  price: number;
-  originalPrice: number;
+  userId: Types.ObjectId;
+  specialization: string;
+  firmName: string;
+  yearsOfExperience: number;
+  certifications?: string[];
+  education?: string;
+  about?: string;
   image: string;
   isVerified: boolean;
-  experience: string;
-  consultations: number;
-  extraAreas: number;
-  certificate: string;
-  location: string;
+  status: "active" | "inactive" | "pending";
+  price: number;
   totalConsults: number;
-  education: string;
-  about: string;
-  reviews: string[];
-  status: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

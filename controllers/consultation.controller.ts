@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import Consultation from "../models/consultation.model";
 
 class ConsultationController {

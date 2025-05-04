@@ -1,4 +1,5 @@
 import express from "express";
+
 import ConsultationController from "../controllers/consultation.controller";
 
 const router = express.Router();
