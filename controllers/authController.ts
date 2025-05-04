@@ -78,14 +78,12 @@ export default class AuthController {
         return res.status(401).json({ error: "Invalid email/password" });
       }
 
-      // Generate OTP and store it in Redis
-      const otp = otpService.generateOTP();
-      await otpService.storeOTP(email, otp);
+      // Generate OTP, store it in Redis, and send it via email
+      await otpService.sendOTP(email);
 
       res.status(200).json({
-        message: "Login successful",
-        otp: otp,
-        expiresIn: "5 minutes",
+        message: "OTP has been sent to your email",
+        email: email,
       });
     } catch (error) {
       console.error("login error:", error);

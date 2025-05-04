@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
 import redis from "../config/redis";
+import { emailService } from "./emailService";
 
 //interface OTPData
 interface OTPData {
@@ -16,15 +17,22 @@ class OTPService {
     return randomInt(100000, 999999).toString();
   }
 
-  async storeOTP(email: string, otp: string): Promise<void> {
-    const key = `${this.OTP_PREFIX}${email}`;
+  async sendOTP(email: string): Promise<string> {
+    const otp = this.generateOTP();
     const otpData: OTPData = {
       email,
       otp,
       expiresAt: new Date(Date.now() + this.OTP_EXPIRY * 1000),
     };
 
+    // Store OTP in Redis
+    const key = `${this.OTP_PREFIX}${email}`;
     await redis.setex(key, this.OTP_EXPIRY, JSON.stringify(otpData));
+
+    // Send OTP via email
+    await emailService.sendOTPEmail(email, otp);
+
+    return otp;
   }
 
   async getOTP(email: string): Promise<OTPData | null> {
