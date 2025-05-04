@@ -12,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Basic route
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 // Auth routes
 app.post("/register", AuthController.register);
 app.post("/login", AuthController.login);
+app.post("/verify-otp", AuthController.verifyOTP);
 
 // User routes
 app.post("/users", UserController.createUser);
