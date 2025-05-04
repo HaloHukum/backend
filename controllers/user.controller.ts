@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import User from "../models/user";
+import User from "../models/user.model";
 
 export default class UserController {
   // Create a new user
@@ -9,7 +9,7 @@ export default class UserController {
       await user.save();
       res.status(201).json(user);
     } catch (error) {
-      console.error('createUser error:', error);
+      console.error("createUser error:", error);
       res.status(400).json({ error: "Error creating user" });
     }
   }

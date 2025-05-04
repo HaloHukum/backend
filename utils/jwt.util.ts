@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { IConsultation } from "../interfaces/consultation.interface";
 
 dotenv.config();
 

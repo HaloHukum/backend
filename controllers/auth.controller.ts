@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import User from "../models/user";
-import { comparePassword, hashPassword } from "../helpers/bcrypt";
-import { signToken } from "../helpers/jwt";
+import User from "../models/user.model";
+import { comparePassword, hashPassword } from "../utils/bcrypt.util";
+import { signToken } from "../utils/jwt.util";
 import { loginSchema, registerSchema } from "../interfaces/user.interface";
 
 export default class AuthController {
@@ -28,7 +28,9 @@ export default class AuthController {
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ errors: {email: ["Email already exists"]} });
+        return res
+          .status(400)
+          .json({ errors: { email: ["Email already exists"] } });
       }
 
       const user = await User.create({
@@ -77,7 +79,7 @@ export default class AuthController {
 
       const access_token = signToken({ id: user._id });
 
-      res.status(200).json({access_token});
+      res.status(200).json({ access_token });
     } catch (error) {
       console.error("login error:", error);
       res.status(500).json({ error: "Error during login" });

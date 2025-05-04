@@ -2,11 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import { ILawyer } from "../interfaces/lawyer.interface";
 
 const lawyerSchema: Schema<ILawyer> = new Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   name: {
     type: String,
     required: true,

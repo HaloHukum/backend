@@ -1,7 +1,6 @@
 import { Document } from "mongoose";
 
 export interface ILawyer extends Document {
-  id: string;
   name: string;
   qualification: string;
   rating: number;
