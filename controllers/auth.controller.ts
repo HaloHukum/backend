@@ -1,12 +1,144 @@
 import { Request, Response } from "express";
-import AuthService from "../services/auth.service";
+
 import { IUser } from "../interfaces/user.interface";
+import AuthService from "../services/auth.service";
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     RegisterRequest:
+ *       type: object
+ *       required:
+ *         - fullName
+ *         - phone
+ *         - email
+ *         - password
+ *         - dateOfBirth
+ *         - city
+ *         - gender
+ *       properties:
+ *         fullName:
+ *           type: string
+ *           description: User's full name
+ *         phone:
+ *           type: string
+ *           description: User's phone number
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: User's password (min 6 characters)
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *           description: User's date of birth
+ *         city:
+ *           type: string
+ *           description: User's city
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *           description: User's gender
+ *         role:
+ *           type: string
+ *           enum: [client, lawyer, admin]
+ *           description: User's role (optional)
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         password:
+ *           type: string
+ *           format: password
+ *           description: User's password
+ *     AuthResponse:
+ *       type: object
+ *       properties:
+ *         fullName:
+ *           type: string
+ *           description: User's full name (for register response)
+ *         email:
+ *           type: string
+ *           description: User's email (for register response)
+ *         role:
+ *           type: string
+ *           description: User's role (for register response)
+ *         access_token:
+ *           type: string
+ *           description: JWT access token (for login response)
+ *     UpdateMeRequest:
+ *       type: object
+ *       properties:
+ *         fullName:
+ *           type: string
+ *           description: User's full name
+ *         phone:
+ *           type: string
+ *           description: User's phone number
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *           description: User's date of birth
+ *         city:
+ *           type: string
+ *           description: User's city
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *           description: User's gender
+ */
 
 interface AuthenticatedRequest extends Request {
   user?: IUser;
 }
 
 export default class AuthController {
+  /**
+   * @swagger
+   * /register:
+   *   post:
+   *     summary: Register a new user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/RegisterRequest'
+   *     responses:
+   *       201:
+   *         description: User registered successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       400:
+   *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 errors:
+   *                   type: object
+   *                   description: Validation errors
+   *       500:
+   *         description: Server error
+   */
   static async register(req: Request, res: Response) {
     try {
       const result = await AuthService.register(req.body);
@@ -25,6 +157,48 @@ export default class AuthController {
     }
   }
 
+  /**
+   * @swagger
+   * /login:
+   *   post:
+   *     summary: Login user
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LoginRequest'
+   *     responses:
+   *       200:
+   *         description: Login successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AuthResponse'
+   *       401:
+   *         description: Invalid credentials
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 error:
+   *                   type: string
+   *                   example: Invalid email/password
+   *       400:
+   *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 errors:
+   *                   type: object
+   *                   description: Validation errors
+   *       500:
+   *         description: Server error
+   */
   static async login(req: Request, res: Response) {
     try {
       const result = await AuthService.login(req.body);
@@ -46,6 +220,56 @@ export default class AuthController {
     }
   }
 
+  /**
+   * @swagger
+   * /me:
+   *   get:
+   *     summary: Get current user profile
+   *     tags: [Auth]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: User profile retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 _id:
+   *                   type: string
+   *                   description: User's ID
+   *                 fullName:
+   *                   type: string
+   *                   description: User's full name
+   *                 email:
+   *                   type: string
+   *                   description: User's email
+   *                 phone:
+   *                   type: string
+   *                   description: User's phone number
+   *                 dateOfBirth:
+   *                   type: string
+   *                   format: date
+   *                   description: User's date of birth
+   *                 city:
+   *                   type: string
+   *                   description: User's city
+   *                 gender:
+   *                   type: string
+   *                   enum: [male, female]
+   *                   description: User's gender
+   *                 role:
+   *                   type: string
+   *                   enum: [client, lawyer, admin]
+   *                   description: User's role
+   *       401:
+   *         description: Unauthorized - User not authenticated
+   *       404:
+   *         description: User not found
+   *       500:
+   *         description: Server error
+   */
   static async getMe(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = req.user?._id?.toString();
@@ -64,6 +288,72 @@ export default class AuthController {
     }
   }
 
+  /**
+   * @swagger
+   * /me:
+   *   put:
+   *     summary: Update current user profile
+   *     tags: [Auth]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/UpdateMeRequest'
+   *     responses:
+   *       200:
+   *         description: User profile updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 _id:
+   *                   type: string
+   *                   description: User's ID
+   *                 fullName:
+   *                   type: string
+   *                   description: User's full name
+   *                 email:
+   *                   type: string
+   *                   description: User's email
+   *                 phone:
+   *                   type: string
+   *                   description: User's phone number
+   *                 dateOfBirth:
+   *                   type: string
+   *                   format: date
+   *                   description: User's date of birth
+   *                 city:
+   *                   type: string
+   *                   description: User's city
+   *                 gender:
+   *                   type: string
+   *                   enum: [male, female]
+   *                   description: User's gender
+   *                 role:
+   *                   type: string
+   *                   enum: [client, lawyer, admin]
+   *                   description: User's role
+   *       400:
+   *         description: Invalid input data or update failed
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 errors:
+   *                   type: object
+   *                   description: Validation errors
+   *       401:
+   *         description: Unauthorized - User not authenticated
+   *       404:
+   *         description: User not found
+   *       500:
+   *         description: Server error
+   */
   static async updateMe(req: AuthenticatedRequest, res: Response) {
     try {
       const userId = req.user?._id?.toString();
