@@ -1,9 +1,12 @@
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 
 import { connectDB } from "./configs/mongoose.config";
 import { errorHandler } from "./middlewares/errorHandler";
 import routes from "./routes/route";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./configs/swagger.config";
+
 
 dotenv.config(); // Load .env first!
 
@@ -13,6 +16,17 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// API Documentation
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: `
+      .swagger-ui .topbar { display: none }
+    `,
+  })
+);
 
 // Basic route
 app.get("/", (req, res) => {

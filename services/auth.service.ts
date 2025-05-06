@@ -1,9 +1,9 @@
-import { loginSchema, registerSchema } from "../interfaces/user.interface";
 import {
-  RegisterData,
-  LoginData,
   AuthResponse,
+  LoginData,
+  RegisterData,
 } from "../interfaces/auth.interface";
+import { loginSchema, registerSchema } from "../interfaces/user.interface";
 import User from "../models/user.model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 import { signToken } from "../utils/jwt.util";

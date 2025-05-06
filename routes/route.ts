@@ -7,7 +7,7 @@ import userRoutes from "./user.route";
 
 const router = express.Router();
 
-router.use("/auth", authRoutes);
+router.use("/", authRoutes);
 router.use("/users", userRoutes);
 router.use("/lawyers", lawyerRoutes);
 router.use("/consultations", consultationRoutes);

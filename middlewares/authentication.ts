@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyToken } from "../utils/jwt.util";
+
 import User from "../models/user.model";
+import { verifyToken } from "../utils/jwt.util";
 
 export async function authentication(
   req: Request,
