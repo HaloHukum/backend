@@ -1,10 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction,Request } from "express";
 
 export function requestActivity(
   req: Request,
-  res: Response,
   next: NextFunction
 ): void {
-  console.log(req.method, req.url);
+  console.info(req.method, req.url);
   next();
 }

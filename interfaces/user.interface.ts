@@ -1,7 +1,9 @@
+import { Types } from "mongoose";
 import { Document } from "mongoose";
 import { z } from "zod";
 
 export interface IUser extends Document {
+  _id: Types.ObjectId;
   fullName: string;
   phone: string;
   email: string;

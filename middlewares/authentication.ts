@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyToken } from "../helpers/jwt";
-// import { User } from "../models";
+import { NextFunction, Request, Response } from "express";
+import { verifyToken } from "../utils/jwt.util";
+import User from "../models/user.model";
 
 export async function authentication(
   req: Request,
@@ -13,20 +13,21 @@ export async function authentication(
       throw { name: "Unauthorized", message: "Invalid token" };
     }
 
-    const [type, token] = bearerToken.split(" ");
+    const [_, token] = bearerToken.split(" ");
     if (!token) {
       throw { name: "Unauthorized", message: "Invalid token" };
     }
 
-    const data = verifyToken(token) as { id: number };
-    // const user = await User.findByPk(data.id);
+    const data = verifyToken(token) as { id: string };
+    const user = await User.findById(data.id);
 
-    // if (!user) {
-    //   throw { name: "Unauthorized", message: "Invalid token" };
-    // }
+    if (!user) {
+      throw { name: "Unauthorized", message: "Invalid token" };
+    }
+    console.info(user)
 
-    // req.user = user;
-
+    type RequestWithUser = Request & { user: typeof user };
+    (req as RequestWithUser).user = user;
     next();
   } catch (err) {
     next(err);

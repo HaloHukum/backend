@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import Consultation from "../models/consultation";
+
+import Consultation from "../models/consultation.model";
 
 class ConsultationController {
   static async createConsultation(req: Request, res: Response) {

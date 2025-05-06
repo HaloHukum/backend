@@ -1,10 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
-import { connectDB } from "./config/mongoose";
-import UserController from "./controllers/userController";
-import AuthController from "./controllers/authController";
-import LawyerController from "./controllers/lawyerController";
-import ConsultationController from "./controllers/consultationController";
+
+import { connectDB } from "./configs/mongoose.config";
+import { errorHandler } from "./middlewares/errorHandler";
+import routes from "./routes/route";
 
 dotenv.config(); // Load .env first!
 
@@ -20,36 +19,25 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to HalloHukum API" });
 });
 
-// Auth routes
-app.post("/register", AuthController.register);
-app.post("/login", AuthController.login);
-app.post("/verify-otp", AuthController.verifyOTP);
+app.use("/", routes);
 
-// User routes
-app.post("/users", UserController.createUser);
-app.get("/users", UserController.getUsers);
-app.get("/users/:id", UserController.getUser);
-app.put("/users/:id", UserController.updateUser);
-app.delete("/users/:id", UserController.deleteUser);
-
-// Lawyer routes
-app.post("/lawyers", LawyerController.createLawyer);
-app.get("/lawyers", LawyerController.getLawyers);
-app.get("/lawyers/:id", LawyerController.getLawyer);
-app.put("/lawyers/:id", LawyerController.updateLawyer);
-
-// Consultation routes
-app.post("/consultations", ConsultationController.createConsultation);
-app.get("/consultations", ConsultationController.getConsultations);
-app.get("/consultations/:id", ConsultationController.getConsultation);
-app.put("/consultations/:id", ConsultationController.updateConsultation);
-app.delete("/consultations/:id", ConsultationController.deleteConsultation);
+// Error handling middleware must be registered last
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    errorHandler(err, req, res, next);
+  }
+);
 
 // Connect to MongoDB and then start server
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
+    console.info(`🚀 Server is running on port ${PORT}`);
   });
 };
 

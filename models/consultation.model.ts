@@ -1,14 +1,15 @@
 import mongoose, { Schema } from "mongoose";
+
 import { IConsultation } from "../interfaces/consultation.interface";
 
 const consultationSchema: Schema<IConsultation> = new Schema(
   {
     userId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     lawyerId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
     },
     categoryId: {

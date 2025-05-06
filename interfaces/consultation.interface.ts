@@ -1,8 +1,8 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 export interface IConsultation extends Document {
-  userId: string;
-  lawyerId: string;
+  userId: Types.ObjectId;
+  lawyerId: Types.ObjectId;
   categoryId: string;
   caseType: string;
   problemDescription: string;

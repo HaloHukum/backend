@@ -17,8 +17,9 @@
     "types": ["node"],
     "lib": ["ES2021"],
     "allowSyntheticDefaultImports": true,
-    "incremental": true
+    "incremental": true,
+    "typeRoots": ["./node_modules/@types", "./interfaces"]
   },
-  "include": ["*.ts"], // Include all .ts files in root
+  "include": ["**/*.ts", "**/*.tsx", "**/*.d.ts"], // Include all .ts files in root
   "exclude": ["node_modules", "dist"]
 }
