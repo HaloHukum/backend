@@ -1,5 +1,5 @@
-import { Request, Response } from "express";
 import AuthService from "../services/auth.service";
+import { Request, Response } from "express";
 import { IUser } from "../interfaces/user.interface";
 
 interface AuthenticatedRequest extends Request {
@@ -43,6 +43,33 @@ export default class AuthController {
         }
       }
       return res.status(500).json({ error: "Error during login" });
+    }
+  }
+
+  static async verifyOTP(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      const result = await AuthService.verifyOTP(email, otp);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      if (error instanceof Error) {
+        if (error.message === "Invalid or expired OTP") {
+          return res.status(401).json({ error: error.message });
+        }
+        if (error.message === "User not found") {
+          return res.status(404).json({ error: error.message });
+        }
+        try {
+          const errorData = JSON.parse(error.message);
+          return res.status(400).json({ errors: errorData });
+        } catch {
+          return res
+            .status(500)
+            .json({ error: "Error during OTP verification" });
+        }
+      }
+      return res.status(500).json({ error: "Error during OTP verification" });
     }
   }
 

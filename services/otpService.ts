@@ -1,6 +1,7 @@
 import { randomInt } from "crypto";
-import redis from "../config/redis";
-import { emailService } from "./emailService";
+import redis from "../configs/redis.config";
+import { whatsappService } from "./whatsappService";
+import User from "../models/user";
 
 //interface OTPData
 interface OTPData {
@@ -18,6 +19,16 @@ class OTPService {
   }
 
   async sendOTP(email: string): Promise<string> {
+    // Find user to get their phone number
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (!user.phone) {
+      throw new Error("User phone number not found");
+    }
+
     const otp = this.generateOTP();
     const otpData: OTPData = {
       email,
@@ -29,8 +40,8 @@ class OTPService {
     const key = `${this.OTP_PREFIX}${email}`;
     await redis.setex(key, this.OTP_EXPIRY, JSON.stringify(otpData));
 
-    // Send OTP via email
-    await emailService.sendOTPEmail(email, otp);
+    // Send OTP via WhatsApp
+    await whatsappService.sendOTP(user.phone, otp);
 
     return otp;
   }
