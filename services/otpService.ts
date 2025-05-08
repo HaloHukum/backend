@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
-import redis from "../config/redis";
+
+import redis from "../configs/redis.config";
 import { emailService } from "./emailService";
 
 //interface OTPData

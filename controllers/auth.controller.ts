@@ -3,6 +3,10 @@ import { Request, Response } from "express";
 import { IUser } from "../interfaces/user.interface";
 import AuthService from "../services/auth.service";
 
+export interface AuthenticatedRequest extends Request {
+  user?: IUser;
+}
+
 /**
  * @swagger
  * components:
@@ -61,6 +65,35 @@ import AuthService from "../services/auth.service";
  *           type: string
  *           format: password
  *           description: User's password
+ *     LoginResponse:
+ *       type: object
+ *       properties:
+ *         access_token:
+ *           type: string
+ *           description: JWT access token for authentication
+ *         token_type:
+ *           type: string
+ *           enum: [Bearer]
+ *           description: Type of token
+ *         chat_token:
+ *           type: string
+ *           description: Token for chat functionality
+ *         user:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               description: User's ID
+ *             fullName:
+ *               type: string
+ *               description: User's full name
+ *             email:
+ *               type: string
+ *               description: User's email
+ *             role:
+ *               type: string
+ *               enum: [client, lawyer, admin]
+ *               description: User's role
  *     AuthResponse:
  *       type: object
  *       properties:
@@ -73,9 +106,6 @@ import AuthService from "../services/auth.service";
  *         role:
  *           type: string
  *           description: User's role (for register response)
- *         access_token:
- *           type: string
- *           description: JWT access token (for login response)
  *     UpdateMeRequest:
  *       type: object
  *       properties:
@@ -101,10 +131,6 @@ import AuthService from "../services/auth.service";
  *           enum: [male, female]
  *           description: User's gender
  */
-
-interface AuthenticatedRequest extends Request {
-  user?: IUser;
-}
 
 export default class AuthController {
   /**
@@ -175,7 +201,7 @@ export default class AuthController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/AuthResponse'
+   *               $ref: '#/components/schemas/LoginResponse'
    *       401:
    *         description: Invalid credentials
    *         content:

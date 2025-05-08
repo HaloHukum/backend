@@ -14,11 +14,6 @@ const lawyerSchema: Schema<ILawyer> = new Schema(
       required: true,
       trim: true,
     },
-    firmName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     yearsOfExperience: {
       type: Number,
       required: true,

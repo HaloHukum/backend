@@ -2,10 +2,142 @@ import { Request, Response } from "express";
 
 import Lawyer from "../models/lawyer.model";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     LawyerRequest:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - specialization
+ *         - yearsOfExperience
+ *         - image
+ *         - price
+ *       properties:
+ *         userId:
+ *           type: string
+ *           description: Reference to the user ID
+ *         specialization:
+ *           type: string
+ *           description: Lawyer's area of specialization
+ *         yearsOfExperience:
+ *           type: number
+ *           minimum: 0
+ *           description: Number of years of experience
+ *         certifications:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of lawyer's certifications
+ *         education:
+ *           type: string
+ *           description: Lawyer's educational background
+ *         about:
+ *           type: string
+ *           description: Brief description about the lawyer
+ *         image:
+ *           type: string
+ *           description: URL to lawyer's profile image
+ *         price:
+ *           type: number
+ *           minimum: 0
+ *           description: Consultation price
+ *     LawyerResponse:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Lawyer's ID
+ *         userId:
+ *           type: string
+ *           description: Reference to the user ID
+ *         specialization:
+ *           type: string
+ *           description: Lawyer's area of specialization
+ *         yearsOfExperience:
+ *           type: number
+ *           description: Number of years of experience
+ *         certifications:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: List of lawyer's certifications
+ *         education:
+ *           type: string
+ *           description: Lawyer's educational background
+ *         about:
+ *           type: string
+ *           description: Brief description about the lawyer
+ *         image:
+ *           type: string
+ *           description: URL to lawyer's profile image
+ *         isVerified:
+ *           type: boolean
+ *           description: Whether the lawyer is verified
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, pending]
+ *           description: Lawyer's current status
+ *         price:
+ *           type: number
+ *           description: Consultation price
+ *         totalConsults:
+ *           type: number
+ *           description: Total number of consultations
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Creation timestamp
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Last update timestamp
+ */
+
 class LawyerController {
+  /**
+   * @swagger
+   * /lawyers:
+   *   post:
+   *     summary: Create a new lawyer profile
+   *     tags: [Lawyers]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LawyerRequest'
+   *     responses:
+   *       201:
+   *         description: Lawyer profile created successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LawyerResponse'
+   *       400:
+   *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Error creating lawyer
+   *       500:
+   *         description: Server error
+   */
   static async createLawyer(req: Request, res: Response) {
     try {
       const lawyer = new Lawyer(req.body);
+      const existingLawyer = await Lawyer.findOne({
+        userId: req.body.userId,
+      });
+      if (existingLawyer) {
+        return res.status(400).json({ message: "Lawyer already exists" });
+      }
+
       const savedLawyer = await lawyer.save();
       res.status(201).json(savedLawyer);
     } catch (error) {
@@ -13,6 +145,32 @@ class LawyerController {
     }
   }
 
+  /**
+   * @swagger
+   * /lawyers:
+   *   get:
+   *     summary: Get all lawyers
+   *     tags: [Lawyers]
+   *     responses:
+   *       200:
+   *         description: List of lawyers retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/LawyerResponse'
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Error fetching lawyers
+   */
   static async getLawyers(req: Request, res: Response) {
     try {
       const lawyers = await Lawyer.find();
@@ -22,6 +180,47 @@ class LawyerController {
     }
   }
 
+  /**
+   * @swagger
+   * /lawyers/{id}:
+   *   get:
+   *     summary: Get a lawyer by ID
+   *     tags: [Lawyers]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Lawyer ID
+   *     responses:
+   *       200:
+   *         description: Lawyer retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LawyerResponse'
+   *       404:
+   *         description: Lawyer not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Lawyer not found
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Error fetching lawyer
+   */
   static async getLawyer(req: Request, res: Response) {
     try {
       const lawyer = await Lawyer.findById(req.params.id);
@@ -34,6 +233,55 @@ class LawyerController {
     }
   }
 
+  /**
+   * @swagger
+   * /lawyers/{id}:
+   *   put:
+   *     summary: Update a lawyer profile
+   *     tags: [Lawyers]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Lawyer ID
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LawyerRequest'
+   *     responses:
+   *       200:
+   *         description: Lawyer profile updated successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LawyerResponse'
+   *       400:
+   *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Error updating lawyer
+   *       404:
+   *         description: Lawyer not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 message:
+   *                   type: string
+   *                   example: Lawyer not found
+   *       500:
+   *         description: Server error
+   */
   static async updateLawyer(req: Request, res: Response) {
     try {
       const lawyer = await Lawyer.findByIdAndUpdate(req.params.id, req.body, {
