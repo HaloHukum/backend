@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
+import swaggerUi from "swagger-ui-express";
 
 import { connectDB } from "./configs/mongoose.config";
-import { errorHandler } from "./middlewares/errorHandler";
-import routes from "./routes/route";
-import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./configs/swagger.config";
+import { errorHandler } from "./middlewares/error.middleware";
+import routes from "./routes";
 
 
 dotenv.config(); // Load .env first!

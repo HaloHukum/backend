@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 
 import Consultation from "../models/consultation.model";
 
-class ConsultationController {
+
+export default class ConsultationController {
   static async createConsultation(req: Request, res: Response) {
     try {
       const consultation = new Consultation(req.body);
@@ -84,5 +85,3 @@ class ConsultationController {
     }
   }
 }
-
-export default ConsultationController;
