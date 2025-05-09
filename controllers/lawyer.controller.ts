@@ -6,6 +6,33 @@ import Lawyer from "../models/lawyer.model";
  * @swagger
  * components:
  *   schemas:
+ *     UserResponse:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: User's ID
+ *         fullName:
+ *           type: string
+ *           description: User's full name
+ *         phone:
+ *           type: string
+ *           description: User's phone number
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *           description: User's date of birth
+ *         city:
+ *           type: string
+ *           description: User's city
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *           description: User's gender
  *     LawyerRequest:
  *       type: object
  *       required:
@@ -50,8 +77,8 @@ import Lawyer from "../models/lawyer.model";
  *           type: string
  *           description: Lawyer's ID
  *         userId:
- *           type: string
- *           description: Reference to the user ID
+ *           $ref: '#/components/schemas/UserResponse'
+ *           description: Full user profile data (populated)
  *         specialization:
  *           type: string
  *           description: Lawyer's area of specialization
@@ -173,7 +200,10 @@ class LawyerController {
    */
   static async getLawyers(req: Request, res: Response) {
     try {
-      const lawyers = await Lawyer.find();
+      const lawyers = await Lawyer.find().populate({
+        path: "userId",
+        select: "fullName phone email dateOfBirth city gender"
+    });
       res.status(200).json(lawyers);
     } catch (error) {
       res.status(500).json({ message: "Error fetching lawyers", error });
@@ -223,10 +253,15 @@ class LawyerController {
    */
   static async getLawyer(req: Request, res: Response) {
     try {
-      const lawyer = await Lawyer.findById(req.params.id);
+      const lawyer = await Lawyer.findById(req.params.id).populate({
+        path: "userId",
+        select: "fullName phone email dateOfBirth city gender",
+      });
+
       if (!lawyer) {
         return res.status(404).json({ message: "Lawyer not found" });
       }
+
       res.status(200).json(lawyer);
     } catch (error) {
       res.status(500).json({ message: "Error fetching lawyer", error });
