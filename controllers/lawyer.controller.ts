@@ -6,6 +6,34 @@ import Lawyer from "../models/lawyer.model";
  * @swagger
  * components:
  *   schemas:
+ *     UserResponse:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: User's ID
+ *         fullName:
+ *           type: string
+ *           description: User's full name
+ *         phone:
+ *           type: string
+ *           description: User's phone number
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *           description: User's date of birth
+ *         city:
+ *           type: string
+ *           description: User's city
+ *         gender:
+ *           type: string
+ *           enum: [male, female]
+ *           description: User's gender
+ * 
  *     LawyerRequest:
  *       type: object
  *       required:
@@ -14,13 +42,16 @@ import Lawyer from "../models/lawyer.model";
  *         - yearsOfExperience
  *         - image
  *         - price
+ *         - status
  *       properties:
  *         userId:
  *           type: string
  *           description: Reference to the user ID
  *         specialization:
- *           type: string
- *           description: Lawyer's area of specialization
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lawyer's areas of specialization
  *         yearsOfExperience:
  *           type: number
  *           minimum: 0
@@ -30,19 +61,24 @@ import Lawyer from "../models/lawyer.model";
  *           items:
  *             type: string
  *           description: List of lawyer's certifications
- *         education:
+ *         qualification:
  *           type: string
- *           description: Lawyer's educational background
+ *           description: Lawyer's qualification (e.g. education degree)
  *         about:
  *           type: string
  *           description: Brief description about the lawyer
  *         image:
  *           type: string
  *           description: URL to lawyer's profile image
+ *         status:
+ *           type: string
+ *           enum: [online, offline]
+ *           description: Lawyer's availability status
  *         price:
  *           type: number
  *           minimum: 0
  *           description: Consultation price
+ * 
  *     LawyerResponse:
  *       type: object
  *       properties:
@@ -50,11 +86,13 @@ import Lawyer from "../models/lawyer.model";
  *           type: string
  *           description: Lawyer's ID
  *         userId:
- *           type: string
- *           description: Reference to the user ID
+ *           $ref: '#/components/schemas/UserResponse'
+ *           description: Full user profile data (populated)
  *         specialization:
- *           type: string
- *           description: Lawyer's area of specialization
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lawyer's areas of specialization
  *         yearsOfExperience:
  *           type: number
  *           description: Number of years of experience
@@ -63,9 +101,9 @@ import Lawyer from "../models/lawyer.model";
  *           items:
  *             type: string
  *           description: List of lawyer's certifications
- *         education:
+ *         qualification:
  *           type: string
- *           description: Lawyer's educational background
+ *           description: Lawyer's qualification (e.g. education degree)
  *         about:
  *           type: string
  *           description: Brief description about the lawyer
@@ -77,8 +115,8 @@ import Lawyer from "../models/lawyer.model";
  *           description: Whether the lawyer is verified
  *         status:
  *           type: string
- *           enum: [active, inactive, pending]
- *           description: Lawyer's current status
+ *           enum: [online, offline]
+ *           description: Lawyer's availability status
  *         price:
  *           type: number
  *           description: Consultation price
@@ -173,7 +211,10 @@ class LawyerController {
    */
   static async getLawyers(req: Request, res: Response) {
     try {
-      const lawyers = await Lawyer.find();
+      const lawyers = await Lawyer.find().populate({
+        path: "userId",
+        select: "fullName phone email dateOfBirth city gender"
+    });
       res.status(200).json(lawyers);
     } catch (error) {
       res.status(500).json({ message: "Error fetching lawyers", error });
@@ -223,10 +264,15 @@ class LawyerController {
    */
   static async getLawyer(req: Request, res: Response) {
     try {
-      const lawyer = await Lawyer.findById(req.params.id);
+      const lawyer = await Lawyer.findById(req.params.id).populate({
+        path: "userId",
+        select: "fullName phone email dateOfBirth city gender",
+      });
+
       if (!lawyer) {
         return res.status(404).json({ message: "Lawyer not found" });
       }
+
       res.status(200).json(lawyer);
     } catch (error) {
       res.status(500).json({ message: "Error fetching lawyer", error });
