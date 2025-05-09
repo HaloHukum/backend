@@ -2,3 +2,4 @@
 node_modules
 .temp
 secret
+configs/ecosystem.config.ts

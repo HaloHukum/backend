@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+
 import { ILawyer } from "../interfaces/lawyer.interface";
 
 const lawyerSchema: Schema<ILawyer> = new Schema(
