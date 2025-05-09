@@ -33,6 +33,7 @@ import Lawyer from "../models/lawyer.model";
  *           type: string
  *           enum: [male, female]
  *           description: User's gender
+ * 
  *     LawyerRequest:
  *       type: object
  *       required:
@@ -41,13 +42,16 @@ import Lawyer from "../models/lawyer.model";
  *         - yearsOfExperience
  *         - image
  *         - price
+ *         - status
  *       properties:
  *         userId:
  *           type: string
  *           description: Reference to the user ID
  *         specialization:
- *           type: string
- *           description: Lawyer's area of specialization
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lawyer's areas of specialization
  *         yearsOfExperience:
  *           type: number
  *           minimum: 0
@@ -57,19 +61,24 @@ import Lawyer from "../models/lawyer.model";
  *           items:
  *             type: string
  *           description: List of lawyer's certifications
- *         education:
+ *         qualification:
  *           type: string
- *           description: Lawyer's educational background
+ *           description: Lawyer's qualification (e.g. education degree)
  *         about:
  *           type: string
  *           description: Brief description about the lawyer
  *         image:
  *           type: string
  *           description: URL to lawyer's profile image
+ *         status:
+ *           type: string
+ *           enum: [online, offline]
+ *           description: Lawyer's availability status
  *         price:
  *           type: number
  *           minimum: 0
  *           description: Consultation price
+ * 
  *     LawyerResponse:
  *       type: object
  *       properties:
@@ -80,8 +89,10 @@ import Lawyer from "../models/lawyer.model";
  *           $ref: '#/components/schemas/UserResponse'
  *           description: Full user profile data (populated)
  *         specialization:
- *           type: string
- *           description: Lawyer's area of specialization
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Lawyer's areas of specialization
  *         yearsOfExperience:
  *           type: number
  *           description: Number of years of experience
@@ -90,9 +101,9 @@ import Lawyer from "../models/lawyer.model";
  *           items:
  *             type: string
  *           description: List of lawyer's certifications
- *         education:
+ *         qualification:
  *           type: string
- *           description: Lawyer's educational background
+ *           description: Lawyer's qualification (e.g. education degree)
  *         about:
  *           type: string
  *           description: Brief description about the lawyer
@@ -104,8 +115,8 @@ import Lawyer from "../models/lawyer.model";
  *           description: Whether the lawyer is verified
  *         status:
  *           type: string
- *           enum: [active, inactive, pending]
- *           description: Lawyer's current status
+ *           enum: [online, offline]
+ *           description: Lawyer's availability status
  *         price:
  *           type: number
  *           description: Consultation price

@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
 import { ILawyer } from "../interfaces/lawyer.interface";
 
 const lawyerSchema: Schema<ILawyer> = new Schema(
@@ -10,7 +9,7 @@ const lawyerSchema: Schema<ILawyer> = new Schema(
       required: true,
     },
     specialization: {
-      type: String,
+      type: [String],
       required: true,
       trim: true,
     },
@@ -23,7 +22,7 @@ const lawyerSchema: Schema<ILawyer> = new Schema(
       type: [String],
       default: [],
     },
-    education: {
+    qualification: {
       type: String,
       trim: true,
     },
@@ -41,8 +40,8 @@ const lawyerSchema: Schema<ILawyer> = new Schema(
     },
     status: {
       type: String,
-      enum: ["active", "inactive", "pending"],
-      default: "pending",
+      enum: ["online", "offline"],
+      required: true,
     },
     price: {
       type: Number,
