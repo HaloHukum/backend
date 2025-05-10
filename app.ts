@@ -6,7 +6,7 @@ import { connectDB } from "./configs/mongoose.config";
 import { swaggerSpec } from "./configs/swagger.config";
 import { errorHandler } from "./middlewares/error.middleware";
 import routes from "./routes";
-
+import cors from "cors";
 
 dotenv.config(); // Load .env first!
 
@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
 
 // API Documentation
 app.use(
