@@ -28,8 +28,17 @@ import ChatService from "../services/chat.service";
  *           type: string
  *           description: Name of the chat channel
  *         members:
- *           type: object
- *           description: Channel members and their roles
+ *           type: array
+ *           description: List of channel members with their roles
+ *           items:
+ *             type: object
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Member user ID
+ *               role:
+ *                 type: string
+ *                 description: Role of the member (client or lawyer)
  */
 
 export default class ChatController {

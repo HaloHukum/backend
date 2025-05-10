@@ -1,30 +1,41 @@
 import { serverClient } from "../configs/getstream.config";
 
 export default class ChatService {
+
+  // TODO: clientId and lawyerId should be existing users
   static async createChannel(clientId: string, lawyerId: string) {
     if (!clientId || !lawyerId) {
       throw new Error("clientId and lawyerId are required");
     }
 
-    // await serverClient.upsertUsers([
-    //   { id: clientId },
-    //   { id: lawyerId },
-    // ]);
+    await serverClient.upsertUsers([
+      {
+        id: clientId,
+        name: `Client ${clientId}`, 
+      },
+      {
+        id: lawyerId,
+        name: `Lawyer ${lawyerId}`, 
+      },
+    ]);
 
     const channelId = `${clientId}_${lawyerId}`;
 
-    const channel = serverClient.channel("messaging", channelId, {
-      members: [clientId, lawyerId],
+    const newChannel = serverClient.channel("messaging", channelId, {
       name: `Consultation: ${clientId} & ${lawyerId}`,
-      created_by_id: "test",
+      members: [clientId, lawyerId],
+      created_by_id: "4645",
     });
 
-    const state = await channel.query();
+    await newChannel.create()
 
     return {
       channelId,
-      name: state.data.name,
-      members: state.state.members,
+      name: `Consultation: ${clientId} & ${lawyerId}`,
+      members: [
+        { id: clientId, role: "client" },
+        { id: lawyerId, role: "lawyer" },
+      ],
     };
   }
 }
