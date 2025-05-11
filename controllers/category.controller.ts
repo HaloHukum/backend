@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 
-import { CategoryService } from "../services/category.service";
-
-const categoryService = new CategoryService();
+import CategoryService from "../services/category.service";
 
 /**
  * @swagger
@@ -58,10 +56,10 @@ const categoryService = new CategoryService();
  *           example: Category not found
  */
 
-export class CategoryController {
+export default class CategoryController {
   /**
    * @swagger
-   * /api/categories:
+   * /categories:
    *   post:
    *     summary: Create a new category
    *     tags: [Categories]
@@ -100,9 +98,9 @@ export class CategoryController {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  async createCategory(req: Request, res: Response) {
+  static async createCategory(req: Request, res: Response) {
     try {
-      const category = await categoryService.createCategory(req.body);
+      const category = await CategoryService.createCategory(req.body);
       res.status(201).json({
         status: "success",
         message: "Category created successfully",
@@ -118,7 +116,7 @@ export class CategoryController {
 
   /**
    * @swagger
-   * /api/categories:
+   * /categories:
    *   get:
    *     summary: Get all categories
    *     tags: [Categories]
@@ -147,9 +145,9 @@ export class CategoryController {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  async getAllCategories(req: Request, res: Response) {
+  static async getAllCategories(req: Request, res: Response) {
     try {
-      const categories = await categoryService.getAllCategories();
+      const categories = await CategoryService.getAllCategories();
       res.status(200).json({
         status: "success",
         message: "Categories retrieved successfully",
@@ -165,7 +163,7 @@ export class CategoryController {
 
   /**
    * @swagger
-   * /api/categories/{id}:
+   * /categories/{id}:
    *   get:
    *     summary: Get a category by ID
    *     tags: [Categories]
@@ -190,9 +188,9 @@ export class CategoryController {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  async getCategoryById(req: Request, res: Response) {
+  static async getCategoryById(req: Request, res: Response) {
     try {
-      const category = await categoryService.getCategoryById(req.params.id);
+      const category = await CategoryService.getCategoryById(req.params.id);
       if (!category) {
         return res.status(404).json({
           status: "error",
@@ -214,7 +212,7 @@ export class CategoryController {
 
   /**
    * @swagger
-   * /api/categories/{id}:
+   * /categories/{id}:
    *   put:
    *     summary: Update a category
    *     tags: [Categories]
@@ -257,9 +255,9 @@ export class CategoryController {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  async updateCategory(req: Request, res: Response) {
+  static async updateCategory(req: Request, res: Response) {
     try {
-      const category = await categoryService.updateCategory(
+      const category = await CategoryService.updateCategory(
         req.params.id,
         req.body
       );
@@ -284,7 +282,7 @@ export class CategoryController {
 
   /**
    * @swagger
-   * /api/categories/{id}:
+   * /categories/{id}:
    *   delete:
    *     summary: Delete a category
    *     tags: [Categories]
@@ -309,9 +307,9 @@ export class CategoryController {
    *             schema:
    *               $ref: '#/components/schemas/ErrorResponse'
    */
-  async deleteCategory(req: Request, res: Response) {
+  static async deleteCategory(req: Request, res: Response) {
     try {
-      const category = await categoryService.deleteCategory(req.params.id);
+      const category = await CategoryService.deleteCategory(req.params.id);
       if (!category) {
         return res.status(404).json({
           status: "error",

@@ -33,7 +33,7 @@ import Lawyer from "../models/lawyer.model";
  *           type: string
  *           enum: [male, female]
  *           description: User's gender
- * 
+ *
  *     LawyerRequest:
  *       type: object
  *       required:
@@ -78,7 +78,7 @@ import Lawyer from "../models/lawyer.model";
  *           type: number
  *           minimum: 0
  *           description: Consultation price
- * 
+ *
  *     LawyerResponse:
  *       type: object
  *       properties:
@@ -133,7 +133,7 @@ import Lawyer from "../models/lawyer.model";
  *           description: Last update timestamp
  */
 
-class LawyerController {
+export default class LawyerController {
   /**
    * @swagger
    * /lawyers:
@@ -152,7 +152,16 @@ class LawyerController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/LawyerResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Lawyer profile created successfully
+   *                 data:
+   *                   $ref: '#/components/schemas/LawyerResponse'
    *       400:
    *         description: Invalid input data
    *         content:
@@ -160,9 +169,12 @@ class LawyerController {
    *             schema:
    *               type: object
    *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
    *                 message:
    *                   type: string
-   *                   example: Error creating lawyer
+   *                   example: Lawyer already exists
    *       500:
    *         description: Server error
    */
@@ -173,13 +185,24 @@ class LawyerController {
         userId: req.body.userId,
       });
       if (existingLawyer) {
-        return res.status(400).json({ message: "Lawyer already exists" });
+        return res.status(400).json({
+          status: "error",
+          message: "Lawyer already exists",
+        });
       }
 
       const savedLawyer = await lawyer.save();
-      res.status(201).json(savedLawyer);
+      res.status(201).json({
+        status: "success",
+        message: "Lawyer profile created successfully",
+        data: savedLawyer,
+      });
     } catch (error) {
-      res.status(400).json({ message: "Error creating lawyer", error });
+      res.status(400).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Error creating lawyer",
+      });
     }
   }
 
@@ -195,29 +218,38 @@ class LawyerController {
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/LawyerResponse'
-   *       500:
-   *         description: Server error
-   *         content:
-   *           application/json:
-   *             schema:
    *               type: object
    *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
    *                 message:
    *                   type: string
-   *                   example: Error fetching lawyers
+   *                   example: Lawyers retrieved successfully
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/LawyerResponse'
+   *       500:
+   *         description: Server error
    */
   static async getLawyers(req: Request, res: Response) {
     try {
       const lawyers = await Lawyer.find().populate({
         path: "userId",
-        select: "fullName phone email dateOfBirth city gender"
-    });
-      res.status(200).json(lawyers);
+        select: "fullName phone email dateOfBirth city gender",
+      });
+      res.status(200).json({
+        status: "success",
+        message: "Lawyers retrieved successfully",
+        data: lawyers,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error fetching lawyers", error });
+      res.status(500).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Error fetching lawyers",
+      });
     }
   }
 
@@ -240,7 +272,16 @@ class LawyerController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/LawyerResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Lawyer retrieved successfully
+   *                 data:
+   *                   $ref: '#/components/schemas/LawyerResponse'
    *       404:
    *         description: Lawyer not found
    *         content:
@@ -248,19 +289,14 @@ class LawyerController {
    *             schema:
    *               type: object
    *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
    *                 message:
    *                   type: string
    *                   example: Lawyer not found
    *       500:
    *         description: Server error
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 message:
-   *                   type: string
-   *                   example: Error fetching lawyer
    */
   static async getLawyer(req: Request, res: Response) {
     try {
@@ -270,12 +306,23 @@ class LawyerController {
       });
 
       if (!lawyer) {
-        return res.status(404).json({ message: "Lawyer not found" });
+        return res.status(404).json({
+          status: "error",
+          message: "Lawyer not found",
+        });
       }
 
-      res.status(200).json(lawyer);
+      res.status(200).json({
+        status: "success",
+        message: "Lawyer retrieved successfully",
+        data: lawyer,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error fetching lawyer", error });
+      res.status(500).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Error fetching lawyer",
+      });
     }
   }
 
@@ -304,7 +351,16 @@ class LawyerController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/LawyerResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Lawyer profile updated successfully
+   *                 data:
+   *                   $ref: '#/components/schemas/LawyerResponse'
    *       400:
    *         description: Invalid input data
    *         content:
@@ -312,6 +368,9 @@ class LawyerController {
    *             schema:
    *               type: object
    *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
    *                 message:
    *                   type: string
    *                   example: Error updating lawyer
@@ -322,6 +381,9 @@ class LawyerController {
    *             schema:
    *               type: object
    *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
    *                 message:
    *                   type: string
    *                   example: Lawyer not found
@@ -334,13 +396,22 @@ class LawyerController {
         new: true,
       });
       if (!lawyer) {
-        return res.status(404).json({ message: "Lawyer not found" });
+        return res.status(404).json({
+          status: "error",
+          message: "Lawyer not found",
+        });
       }
-      res.status(200).json(lawyer);
+      res.status(200).json({
+        status: "success",
+        message: "Lawyer profile updated successfully",
+        data: lawyer,
+      });
     } catch (error) {
-      res.status(400).json({ message: "Error updating lawyer", error });
+      res.status(400).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Error updating lawyer",
+      });
     }
   }
 }
-
-export default LawyerController;
