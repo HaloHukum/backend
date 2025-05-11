@@ -1,3 +1,4 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import swaggerUi from "swagger-ui-express";
@@ -6,7 +7,6 @@ import { connectDB } from "./configs/mongoose.config";
 import { swaggerSpec } from "./configs/swagger.config";
 import { errorHandler } from "./middlewares/error.middleware";
 import routes from "./routes";
-import cors from "cors";
 
 dotenv.config(); // Load .env first!
 

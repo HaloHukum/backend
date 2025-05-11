@@ -11,11 +11,11 @@ export default class ChatService {
     await serverClient.upsertUsers([
       {
         id: clientId,
-        name: `Client ${clientId}`, 
+        role: `client`, 
       },
       {
         id: lawyerId,
-        name: `Lawyer ${lawyerId}`, 
+        role: `lawyer`, 
       },
     ]);
 

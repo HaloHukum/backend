@@ -5,7 +5,10 @@ import {
   RegisterPayload,
   RegisterResponse,
 } from "../interfaces/auth.interface";
-import { loginValidation, registerValidation } from "../interfaces/auth.interface";
+import {
+  loginValidation,
+  registerValidation,
+} from "../interfaces/auth.interface";
 import User from "../models/user.model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 import { signToken } from "../utils/jwt.util";
@@ -71,6 +74,13 @@ export default class AuthService {
 
     const access_token = signToken({ id: user._id });
     const chatToken = serverClient.createToken(user._id.toString());
+
+    // Upsert user in GetStream
+    await serverClient.upsertUser({
+      id: user._id.toString(),
+      name: user.fullName,
+      role: user.role,
+    });
 
     return {
       access_token,
