@@ -1,7 +1,8 @@
 import express from "express";
 
 import authRoutes from "./auth.route";
-import chatRoutes from "./chat.route";  
+import categoryRoutes from "./category.route";
+import chatRoutes from "./chat.route";
 import consultationRoutes from "./consultation.route";
 import lawyerRoutes from "./lawyer.route";
 import userRoutes from "./user.route";
@@ -13,5 +14,6 @@ router.use("/users", userRoutes);
 router.use("/lawyers", lawyerRoutes);
 router.use("/consultations", consultationRoutes);
 router.use("/chats", chatRoutes);
+router.use("/categories", categoryRoutes);
 
 export default router;
