@@ -62,7 +62,16 @@ export default class ChatController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/ChannelResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Chat channel created successfully
+   *                 data:
+   *                   $ref: '#/components/schemas/ChannelResponse'
    *       400:
    *         description: Invalid input data
    *         content:
@@ -70,21 +79,16 @@ export default class ChatController {
    *             schema:
    *               type: object
    *               properties:
-   *                 error:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
    *                   type: string
    *                   example: clientId and lawyerId are required
    *       401:
    *         description: Unauthorized - User not authenticated
    *       500:
    *         description: Server error
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 error:
-   *                   type: string
-   *                   example: Internal Server Error
    */
   static async createChannel(req: Request, res: Response) {
     try {
@@ -92,12 +96,17 @@ export default class ChatController {
 
       const result = await ChatService.createChannel(clientId, lawyerId);
 
-      return res.status(201).json(result);
-    } catch (error: any) {
-      console.error("Create channel error:", error);
-      return res
-        .status(500)
-        .json({ error: error.message || "Internal Server Error" });
+      res.status(201).json({
+        status: "success",
+        message: "Chat channel created successfully",
+        data: result,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Internal Server Error",
+      });
     }
   }
 }
