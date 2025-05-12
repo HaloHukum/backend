@@ -22,12 +22,10 @@ export interface LoginPayload {
   password: string;
 }
 
-// export interface AuthResponse {
-//   fullName?: string;
-//   email?: string;
-//   role?: string;
-//   access_token?: string;
-//   message?: string;
+export interface PreLoginResponse {
+  email?: string;
+  message?: string;
+}
 
 export interface RegisterResponse {
   fullName: string;
@@ -45,7 +43,6 @@ export interface LoginResponse {
     email: string;
     role: string;
   };
-
 }
 
 export const registerValidation = z.object({

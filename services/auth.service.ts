@@ -2,6 +2,7 @@ import { serverClient } from "../configs/getstream.config";
 import {
   LoginPayload,
   LoginResponse,
+  PreLoginResponse,
   RegisterPayload,
   RegisterResponse,
 } from "../interfaces/auth.interface";
@@ -56,7 +57,7 @@ export default class AuthService {
     };
   }
 
-  static async login(credentials: LoginPayload): Promise<LoginResponse> {
+  static async login(credentials: LoginPayload): Promise<PreLoginResponse> {
     const parsed = loginValidation.safeParse(credentials);
     if (!parsed.success) {
       throw new Error(JSON.stringify(parsed.error.flatten().fieldErrors));
@@ -75,21 +76,20 @@ export default class AuthService {
     }
 
     // Check if user has a phone number
-    if (!user.phone) {
-      throw new Error(
-        JSON.stringify({
-          phone: [
-            "Phone number not found. Please update your profile with a valid phone number.",
-          ],
-        })
-      );
-    }
+    // if (!user.phone) {
+    //   throw new Error(
+    //     JSON.stringify({
+    //       phone: [
+    //         "Phone number not found. Please update your profile with a valid phone number.",
+    //       ],
+    //     })
+    //   );
+    // }
 
     try {
       // Generate and store OTP
       await otpService.sendOTP(email);
       // console.log(otp,  "<<< dari otp service");
-      
 
       // Send OTP via SMS
       // await twilioService.sendSMS(
@@ -109,7 +109,7 @@ export default class AuthService {
     }
   }
 
-  static async verifyOTP(email: string, otp: string): Promise<AuthResponse> {
+  static async verifyOTP(email: string, otp: string): Promise<LoginResponse> {
     if (!email || !otp) {
       throw new Error(
         JSON.stringify({
