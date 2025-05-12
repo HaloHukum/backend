@@ -7,6 +7,7 @@ const router = Router()
 
 router.post("/register", AuthController.register);
 router.post("/login", AuthController.login);
+router.post("/verify-otp", AuthController.verifyOTP);
 
 // Protected routes
 router.get("/me", authentication, AuthController.getMe);

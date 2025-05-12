@@ -8,6 +8,7 @@ import { swaggerSpec } from "./configs/swagger.config";
 import { errorHandler } from "./middlewares/error.middleware";
 import routes from "./routes";
 
+
 dotenv.config(); // Load .env first!
 
 const app = express();
