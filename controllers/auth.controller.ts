@@ -3,6 +3,10 @@ import { Request, Response } from "express";
 import { IUser } from "../interfaces/user.interface";
 import AuthService from "../services/auth.service";
 
+export interface AuthenticatedRequest extends Request {
+  user?: IUser;
+}
+
 /**
  * @swagger
  * components:
@@ -61,6 +65,35 @@ import AuthService from "../services/auth.service";
  *           type: string
  *           format: password
  *           description: User's password
+ *     LoginResponse:
+ *       type: object
+ *       properties:
+ *         access_token:
+ *           type: string
+ *           description: JWT access token for authentication
+ *         token_type:
+ *           type: string
+ *           enum: [Bearer]
+ *           description: Type of token
+ *         chat_token:
+ *           type: string
+ *           description: Token for chat functionality
+ *         user:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: string
+ *               description: User's ID
+ *             fullName:
+ *               type: string
+ *               description: User's full name
+ *             email:
+ *               type: string
+ *               description: User's email
+ *             role:
+ *               type: string
+ *               enum: [client, lawyer, admin]
+ *               description: User's role
  *     AuthResponse:
  *       type: object
  *       properties:
@@ -73,9 +106,6 @@ import AuthService from "../services/auth.service";
  *         role:
  *           type: string
  *           description: User's role (for register response)
- *         access_token:
- *           type: string
- *           description: JWT access token (for login response)
  *     UpdateMeRequest:
  *       type: object
  *       properties:
@@ -115,10 +145,6 @@ import AuthService from "../services/auth.service";
  *           description: One-time password received via SMS
  */
 
-interface AuthenticatedRequest extends Request {
-  user?: IUser;
-}
-
 export default class AuthController {
   /**
    * @swagger
@@ -138,7 +164,16 @@ export default class AuthController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/AuthResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: User registered successfully
+   *                 data:
+   *                   $ref: '#/components/schemas/AuthResponse'
    *       400:
    *         description: Invalid input data
    *         content:
@@ -146,27 +181,43 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 errors:
-   *                   type: object
-   *                   description: Validation errors
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Validation error
    *       500:
    *         description: Server error
    */
   static async register(req: Request, res: Response) {
     try {
       const result = await AuthService.register(req.body);
-      return res.status(201).json(result);
+      res.status(201).json({
+        status: "success",
+        message: "User registered successfully",
+        data: result,
+      });
     } catch (error) {
-      console.error("register error:", error);
       if (error instanceof Error) {
         try {
           const errorData = JSON.parse(error.message);
-          return res.status(400).json({ errors: errorData });
+          return res.status(400).json({
+            status: "error",
+            message: "Validation error",
+            data: errorData,
+          });
         } catch {
-          return res.status(500).json({ error: "Error during register" });
+          return res.status(500).json({
+            status: "error",
+            message: "Error during register",
+          });
         }
       }
-      return res.status(500).json({ error: "Error during register" });
+      return res.status(500).json({
+        status: "error",
+        message: "Error during register",
+      });
     }
   }
 
@@ -188,7 +239,16 @@ export default class AuthController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/AuthResponse'
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Login successful
+   *                 data:
+   *                   $ref: '#/components/schemas/LoginResponse'
    *       401:
    *         description: Invalid credentials
    *         content:
@@ -196,7 +256,10 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 error:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
    *                   type: string
    *                   example: Invalid email/password
    *       400:
@@ -206,30 +269,49 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 errors:
-   *                   type: object
-   *                   description: Validation errors
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Validation error
    *       500:
    *         description: Server error
    */
   static async login(req: Request, res: Response) {
     try {
       const result = await AuthService.login(req.body);
-      return res.status(200).json(result);
+      res.status(200).json({
+        status: "success",
+        message: "Login successful",
+        data: result,
+      });
     } catch (error) {
-      console.error("login error:", error);
       if (error instanceof Error) {
         if (error.message === "Invalid email/password") {
-          return res.status(401).json({ error: error.message });
+          return res.status(401).json({
+            status: "error",
+            message: error.message,
+          });
         }
         try {
           const errorData = JSON.parse(error.message);
-          return res.status(400).json({ errors: errorData });
+          return res.status(400).json({
+            status: "error",
+            message: "Validation error",
+            data: errorData,
+          });
         } catch {
-          return res.status(500).json({ error: "Error during login" });
+          return res.status(500).json({
+            status: "error",
+            message: "Error during login",
+          });
         }
       }
-      return res.status(500).json({ error: "Error during login" });
+      return res.status(500).json({
+        status: "error",
+        message: "Error during login",
+      });
     }
   }
 
@@ -249,33 +331,42 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 _id:
+   *                 status:
    *                   type: string
-   *                   description: User's ID
-   *                 fullName:
+   *                   example: success
+   *                 message:
    *                   type: string
-   *                   description: User's full name
-   *                 email:
-   *                   type: string
-   *                   description: User's email
-   *                 phone:
-   *                   type: string
-   *                   description: User's phone number
-   *                 dateOfBirth:
-   *                   type: string
-   *                   format: date
-   *                   description: User's date of birth
-   *                 city:
-   *                   type: string
-   *                   description: User's city
-   *                 gender:
-   *                   type: string
-   *                   enum: [male, female]
-   *                   description: User's gender
-   *                 role:
-   *                   type: string
-   *                   enum: [client, lawyer, admin]
-   *                   description: User's role
+   *                   example: User profile retrieved successfully
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     _id:
+   *                       type: string
+   *                       description: User's ID
+   *                     fullName:
+   *                       type: string
+   *                       description: User's full name
+   *                     email:
+   *                       type: string
+   *                       description: User's email
+   *                     phone:
+   *                       type: string
+   *                       description: User's phone number
+   *                     dateOfBirth:
+   *                       type: string
+   *                       format: date
+   *                       description: User's date of birth
+   *                     city:
+   *                       type: string
+   *                       description: User's city
+   *                     gender:
+   *                       type: string
+   *                       enum: [male, female]
+   *                       description: User's gender
+   *                     role:
+   *                       type: string
+   *                       enum: [client, lawyer, admin]
+   *                       description: User's role
    *       401:
    *         description: Unauthorized - User not authenticated
    *       404:
@@ -287,17 +378,29 @@ export default class AuthController {
     try {
       const userId = req.user?._id?.toString();
       if (!userId) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({
+          status: "error",
+          message: "Unauthorized",
+        });
       }
 
       const result = await AuthService.getMe(userId);
-      return res.status(200).json(result);
+      res.status(200).json({
+        status: "success",
+        message: "User profile retrieved successfully",
+        data: result,
+      });
     } catch (error) {
-      console.error("getMe error:", error);
       if (error instanceof Error && error.message === "User not found") {
-        return res.status(404).json({ error: error.message });
+        return res.status(404).json({
+          status: "error",
+          message: error.message,
+        });
       }
-      return res.status(500).json({ error: "Error getting user profile" });
+      return res.status(500).json({
+        status: "error",
+        message: "Error getting user profile",
+      });
     }
   }
 
@@ -323,33 +426,42 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 _id:
+   *                 status:
    *                   type: string
-   *                   description: User's ID
-   *                 fullName:
+   *                   example: success
+   *                 message:
    *                   type: string
-   *                   description: User's full name
-   *                 email:
-   *                   type: string
-   *                   description: User's email
-   *                 phone:
-   *                   type: string
-   *                   description: User's phone number
-   *                 dateOfBirth:
-   *                   type: string
-   *                   format: date
-   *                   description: User's date of birth
-   *                 city:
-   *                   type: string
-   *                   description: User's city
-   *                 gender:
-   *                   type: string
-   *                   enum: [male, female]
-   *                   description: User's gender
-   *                 role:
-   *                   type: string
-   *                   enum: [client, lawyer, admin]
-   *                   description: User's role
+   *                   example: User profile updated successfully
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     _id:
+   *                       type: string
+   *                       description: User's ID
+   *                     fullName:
+   *                       type: string
+   *                       description: User's full name
+   *                     email:
+   *                       type: string
+   *                       description: User's email
+   *                     phone:
+   *                       type: string
+   *                       description: User's phone number
+   *                     dateOfBirth:
+   *                       type: string
+   *                       format: date
+   *                       description: User's date of birth
+   *                     city:
+   *                       type: string
+   *                       description: User's city
+   *                     gender:
+   *                       type: string
+   *                       enum: [male, female]
+   *                       description: User's gender
+   *                     role:
+   *                       type: string
+   *                       enum: [client, lawyer, admin]
+   *                       description: User's role
    *       400:
    *         description: Invalid input data or update failed
    *         content:
@@ -357,9 +469,12 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 errors:
-   *                   type: object
-   *                   description: Validation errors
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Validation error
    *       401:
    *         description: Unauthorized - User not authenticated
    *       404:
@@ -371,28 +486,50 @@ export default class AuthController {
     try {
       const userId = req.user?._id?.toString();
       if (!userId) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({
+          status: "error",
+          message: "Unauthorized",
+        });
       }
 
       const result = await AuthService.updateMe(userId, req.body);
-      return res.status(200).json(result);
+      res.status(200).json({
+        status: "success",
+        message: "User profile updated successfully",
+        data: result,
+      });
     } catch (error) {
-      console.error("updateMe error:", error);
       if (error instanceof Error) {
         if (error.message === "User not found") {
-          return res.status(404).json({ error: error.message });
+          return res.status(404).json({
+            status: "error",
+            message: error.message,
+          });
         }
         if (error.message === "Failed to update user") {
-          return res.status(400).json({ error: error.message });
+          return res.status(400).json({
+            status: "error",
+            message: error.message,
+          });
         }
         try {
           const errorData = JSON.parse(error.message);
-          return res.status(400).json({ errors: errorData });
+          return res.status(400).json({
+            status: "error",
+            message: "Validation error",
+            data: errorData,
+          });
         } catch {
-          return res.status(500).json({ error: "Error updating user profile" });
+          return res.status(500).json({
+            status: "error",
+            message: "Error updating user profile",
+          });
         }
       }
-      return res.status(500).json({ error: "Error updating user profile" });
+      return res.status(500).json({
+        status: "error",
+        message: "Error updating user profile",
+      });
     }
   }
 

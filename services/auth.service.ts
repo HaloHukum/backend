@@ -1,9 +1,14 @@
+import { serverClient } from "../configs/getstream.config";
 import {
-  AuthResponse,
-  LoginData,
-  RegisterData,
+  LoginPayload,
+  LoginResponse,
+  RegisterPayload,
+  RegisterResponse,
 } from "../interfaces/auth.interface";
-import { loginSchema, registerSchema } from "../interfaces/user.interface";
+import {
+  loginValidation,
+  registerValidation,
+} from "../interfaces/auth.interface";
 import User from "../models/user.model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
 import { signToken } from "../utils/jwt.util";
@@ -11,8 +16,8 @@ import { otpService } from "./otpService";
 // import { twilioService } from "./twilioService";
 
 export default class AuthService {
-  static async register(userData: RegisterData): Promise<AuthResponse> {
-    const parsed = registerSchema.safeParse(userData);
+  static async register(userData: RegisterPayload): Promise<RegisterResponse> {
+    const parsed = registerValidation.safeParse(userData);
     if (!parsed.success) {
       throw new Error(JSON.stringify(parsed.error.flatten().fieldErrors));
     }
@@ -51,8 +56,8 @@ export default class AuthService {
     };
   }
 
-  static async login(credentials: LoginData): Promise<AuthResponse> {
-    const parsed = loginSchema.safeParse(credentials);
+  static async login(credentials: LoginPayload): Promise<LoginResponse> {
+    const parsed = loginValidation.safeParse(credentials);
     if (!parsed.success) {
       throw new Error(JSON.stringify(parsed.error.flatten().fieldErrors));
     }
@@ -124,7 +129,26 @@ export default class AuthService {
     }
 
     const access_token = signToken({ id: user._id });
-    return { access_token };
+    const chatToken = serverClient.createToken(user._id.toString());
+
+    // Upsert user in GetStream
+    await serverClient.upsertUser({
+      id: user._id.toString(),
+      name: user.fullName,
+      role: user.role,
+    });
+
+    return {
+      access_token,
+      token_type: "Bearer",
+      chat_token: chatToken,
+      user: {
+        id: user._id.toString(),
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+      },
+    };
   }
 
   static async getMe(userId: string) {
@@ -144,7 +168,7 @@ export default class AuthService {
     };
   }
 
-  static async updateMe(userId: string, updateData: Partial<RegisterData>) {
+  static async updateMe(userId: string, updateData: Partial<RegisterPayload>) {
     // Remove sensitive fields that shouldn't be updated
     delete updateData.password;
     delete updateData.role;

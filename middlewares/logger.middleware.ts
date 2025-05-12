@@ -1,6 +1,6 @@
 import { NextFunction,Request } from "express";
 
-export function requestActivity(
+export function logger(
   req: Request,
   next: NextFunction
 ): void {
