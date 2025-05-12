@@ -19,4 +19,5 @@ export interface AuthResponse {
   email?: string;
   role?: string;
   access_token?: string;
+  message?: string;
 }

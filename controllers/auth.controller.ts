@@ -100,6 +100,19 @@ import AuthService from "../services/auth.service";
  *           type: string
  *           enum: [male, female]
  *           description: User's gender
+ *     VerifyOTPRequest:
+ *       type: object
+ *       required:
+ *         - email
+ *         - otp
+ *       properties:
+ *         email:
+ *           type: string
+ *           format: email
+ *           description: User's email address
+ *         otp:
+ *           type: string
+ *           description: One-time password received via SMS
  */
 
 interface AuthenticatedRequest extends Request {
@@ -380,6 +393,81 @@ export default class AuthController {
         }
       }
       return res.status(500).json({ error: "Error updating user profile" });
+    }
+  }
+
+  /**
+   * @swagger
+   * /verify-otp:
+   *   post:
+   *     summary: Verify OTP for login
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/VerifyOTPRequest'
+   *     responses:
+   *       200:
+   *         description: OTP verified successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 access_token:
+   *                   type: string
+   *                   description: JWT access token
+   *       400:
+   *         description: Invalid input data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 errors:
+   *                   type: object
+   *                   description: Validation errors
+   *       401:
+   *         description: Invalid or expired OTP
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 error:
+   *                   type: string
+   *                   example: Invalid or expired OTP
+   *       404:
+   *         description: User not found
+   *       500:
+   *         description: Server error
+   */
+  static async verifyOTP(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      const result = await AuthService.verifyOTP(email, otp);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error("OTP verification error:", error);
+      if (error instanceof Error) {
+        if (error.message === "Invalid or expired OTP") {
+          return res.status(401).json({ error: error.message });
+        }
+        if (error.message === "User not found") {
+          return res.status(404).json({ error: error.message });
+        }
+        try {
+          const errorData = JSON.parse(error.message);
+          return res.status(400).json({ errors: errorData });
+        } catch {
+          return res
+            .status(500)
+            .json({ error: "Error during OTP verification" });
+        }
+      }
+      return res.status(500).json({ error: "Error during OTP verification" });
     }
   }
 }
