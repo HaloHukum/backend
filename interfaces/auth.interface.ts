@@ -22,18 +22,18 @@ export interface LoginPayload {
   password: string;
 }
 
-export interface PreLoginResponse {
+export interface PreAuthResponse {
   email?: string;
   message?: string;
 }
 
-export interface RegisterResponse {
-  fullName: string;
-  email: string;
-  role: string;
-}
+// export interface RegisterResponse {
+//   fullName: string;
+//   email: string;
+//   role: string;
+// }
 
-export interface LoginResponse {
+export interface PostAuthResponse {
   access_token: string;
   token_type: string;
   chat_token: string;
