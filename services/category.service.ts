@@ -1,5 +1,5 @@
-import Category from "../models/category.model";
 import { ICategory } from "../interfaces/category.interface";
+import Category from "../models/category.model";
 
 export default class CategoryService {
   static async createCategory(categoryData: Partial<ICategory>): Promise<ICategory> {

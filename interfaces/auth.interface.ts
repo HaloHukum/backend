@@ -1,9 +1,17 @@
+import { Request } from "express";
 import { z } from "zod";
 
 import { IUser } from "./user.interface";
 
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest
+  extends Omit<Request, "params" | "query"> {
   user?: IUser;
+  query: {
+    [key: string]: string | undefined;
+  };
+  params: {
+    [key: string]: string;
+  };
 }
 
 export interface RegisterPayload {
