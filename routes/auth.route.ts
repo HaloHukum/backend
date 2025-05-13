@@ -6,8 +6,9 @@ import { authentication } from "../middlewares/auth.middleware";
 const router = Router()
 
 router.post("/register", AuthController.register);
+router.post("/verify-register-otp", AuthController.verifyRegisterOTP);
 router.post("/login", AuthController.login);
-router.post("/verify-otp", AuthController.verifyOTP);
+router.post("/verify-login-otp", AuthController.verifyLoginOTP);
 
 // Protected routes
 router.get("/me", authentication, AuthController.getMe);
