@@ -585,7 +585,11 @@ export default class AuthController {
     try {
       const { email, otp } = req.body;
       const result = await AuthService.verifyLoginOTP(email, otp);
-      return res.status(200).json(result);
+      return res.status(200).json({
+        status: "success",
+        message: "Login successfull",
+        data: result
+      });
     } catch (error) {
       console.error("OTP verification error:", error);
       if (error instanceof Error) {
