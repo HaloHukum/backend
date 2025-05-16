@@ -1,16 +1,16 @@
 import { serverClient } from "../configs/getstream.config";
 import {
-  // PreLoginResponse,
-  RegisterPayload,
   // RegisterResponse,
   // LoginResponse,
   LoginPayload,
-  PreAuthResponse,
   PostAuthResponse,
+  PreAuthResponse,
+  // PreLoginResponse,
+  RegisterPayload,
 } from "../interfaces/auth.interface";
 import {
-  registerValidation,
   loginValidation,
+  registerValidation,
 } from "../interfaces/auth.interface";
 import User from "../models/user.model";
 import { comparePassword, hashPassword } from "../utils/bcrypt.util";
