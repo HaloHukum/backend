@@ -3,7 +3,6 @@ import express, { RequestHandler } from "express";
 import ReviewController from "../controllers/review.controller";
 import { authentication } from "../middlewares/auth.middleware";
 
-
 const router = express.Router();
 
 router.use(authentication);

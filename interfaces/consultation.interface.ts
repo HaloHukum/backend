@@ -6,6 +6,7 @@ export interface IConsultation extends Document {
   categoryId: string;
   caseType: string;
   problemDescription: string;
+  method: "chat" | "call" | "video";
   legalBasis: string;
   analysis: string;
   conclusionAndAdvice: string;

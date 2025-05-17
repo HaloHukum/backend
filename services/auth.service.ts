@@ -129,7 +129,6 @@ export default class AuthService {
     await serverClient.upsertUser({
       id: user._id.toString(),
       name: user.fullName,
-      // role: user.role,
     });
 
     const access_token = signToken({ id: user._id });
@@ -176,7 +175,6 @@ export default class AuthService {
     await serverClient.upsertUser({
       id: user._id.toString(),
       name: user.fullName,
-      // role: user.role,
     });
 
     return {

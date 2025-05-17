@@ -1,6 +1,5 @@
 import express from "express";
 
-import { authentication } from "../middlewares/auth.middleware";
 import ConsultationController from "../controllers/consultation.controller";
 import { authentication } from "../middlewares/auth.middleware";
 
