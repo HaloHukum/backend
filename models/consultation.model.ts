@@ -20,6 +20,9 @@ const consultationSchema: Schema<IConsultation> = new Schema(
       type: String,
       required: true,
     },
+    method: {
+      type: String,
+    },
     legalBasis: {
       type: String,
     },
