@@ -16,29 +16,21 @@ const consultationSchema: Schema<IConsultation> = new Schema(
       type: String,
       required: true,
     },
-    caseType: {
-      type: String,
-      required: true,
-    },
     problemDescription: {
       type: String,
       required: true,
     },
     legalBasis: {
       type: String,
-      required: true,
     },
     analysis: {
       type: String,
-      required: true,
     },
     conclusionAndAdvice: {
       type: String,
-      required: true,
     },
     chatId: {
       type: String,
-      required: true,
     },
     disclaimer: {
       type: String,
