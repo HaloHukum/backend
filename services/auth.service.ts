@@ -176,7 +176,7 @@ export default class AuthService {
     await serverClient.upsertUser({
       id: user._id.toString(),
       name: user.fullName,
-      role: user.role,
+      // role: user.role,
     });
 
     return {
