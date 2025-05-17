@@ -5,15 +5,17 @@ import categoryRoutes from "./category.route";
 import chatRoutes from "./chat.route";
 import consultationRoutes from "./consultation.route";
 import lawyerRoutes from "./lawyer.route";
+import reviewRoutes from "./review.route";
 import userRoutes from "./user.route";
 
 const router = express.Router();
 
 router.use("/", authRoutes);
-router.use("/users", userRoutes);
-router.use("/lawyers", lawyerRoutes);
-router.use("/consultations", consultationRoutes);
-router.use("/chats", chatRoutes);
 router.use("/categories", categoryRoutes);
+router.use("/chats", chatRoutes);
+router.use("/consultations", consultationRoutes);
+router.use("/lawyers", lawyerRoutes);
+router.use("/reviews", reviewRoutes);
+router.use("/users", userRoutes);
 
 export default router;
