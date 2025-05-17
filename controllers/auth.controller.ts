@@ -535,7 +535,7 @@ export default class AuthController {
 
   /**
    * @swagger
-   * /verify-otp:
+   * /verify-login-otp:
    *   post:
    *     summary: Verify OTP for login
    *     tags: [Auth]
@@ -553,9 +553,39 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 access_token:
+   *                 status:
    *                   type: string
-   *                   description: JWT access token
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Login successful
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     access_token:
+   *                       type: string
+   *                       description: JWT access token
+   *                     token_type:
+   *                       type: string
+   *                       example: Bearer
+   *                     chat_token:
+   *                       type: string
+   *                       description: GetStream chat token
+   *                     user:
+   *                       type: object
+   *                       properties:
+   *                         id:
+   *                           type: string
+   *                           description: User's ID
+   *                         fullName:
+   *                           type: string
+   *                           description: User's full name
+   *                         email:
+   *                           type: string
+   *                           description: User's email
+   *                         role:
+   *                           type: string
+   *                           description: User's role
    *       400:
    *         description: Invalid input data
    *         content:
@@ -563,7 +593,13 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 errors:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Validation error
+   *                 data:
    *                   type: object
    *                   description: Validation errors
    *       401:
@@ -573,13 +609,38 @@ export default class AuthController {
    *             schema:
    *               type: object
    *               properties:
-   *                 error:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
    *                   type: string
    *                   example: Invalid or expired OTP
    *       404:
    *         description: User not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: User not found
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Error during OTP verification
    */
   static async verifyLoginOTP(req: Request, res: Response) {
     try {
@@ -588,33 +649,47 @@ export default class AuthController {
       return res.status(200).json({
         status: "success",
         message: "Login successfull",
-        data: result
+        data: result,
       });
     } catch (error) {
       console.error("OTP verification error:", error);
       if (error instanceof Error) {
         if (error.message === "Invalid or expired OTP") {
-          return res.status(401).json({ error: error.message });
+          return res.status(401).json({
+            status: "error",
+            message: error.message,
+          });
         }
         if (error.message === "User not found") {
-          return res.status(404).json({ error: error.message });
+          return res.status(404).json({
+            status: "error",
+            message: error.message,
+          });
         }
         try {
           const errorData = JSON.parse(error.message);
-          return res.status(400).json({ errors: errorData });
+          return res.status(400).json({
+            status: "error",
+            message: "Validation error",
+            data: errorData,
+          });
         } catch {
-          return res
-            .status(500)
-            .json({ error: "Error during OTP verification" });
+          return res.status(500).json({
+            status: "error",
+            message: "Error during OTP verification",
+          });
         }
       }
-      return res.status(500).json({ error: "Error during OTP verification" });
+      return res.status(500).json({
+        status: "error",
+        message: "Error during OTP verification",
+      });
     }
   }
 
   /**
    * @swagger
-   * /verify-register:
+   * /verify-register-otp:
    *   post:
    *     summary: Verify OTP and complete registration
    *     tags: [Auth]
@@ -738,6 +813,17 @@ export default class AuthController {
    *                   example: Invalid or expired OTP
    *       500:
    *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: error
+   *                 message:
+   *                   type: string
+   *                   example: Error during registration verification
    */
   static async verifyRegisterOTP(req: Request, res: Response) {
     try {
