@@ -19,7 +19,7 @@ export default class CallService {
     ]);
 
     // Create a unique call ID
-    const callId = `call_${clientId}_${lawyerId}_${Date.now()}`;
+    const callId = `call_${Date.now()}`;  
 
     return {
       callId,

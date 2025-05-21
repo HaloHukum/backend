@@ -1,13 +1,13 @@
 import express from "express";
 
 import authRoutes from "./auth.route";
+import callRoutes from "./call.route";
 import categoryRoutes from "./category.route";
 import chatRoutes from "./chat.route";
 import consultationRoutes from "./consultation.route";
 import lawyerRoutes from "./lawyer.route";
 import reviewRoutes from "./review.route";
 import userRoutes from "./user.route";
-import callRoutes from "./call.route";
 
 const router = express.Router();
 

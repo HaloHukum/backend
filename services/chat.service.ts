@@ -20,7 +20,7 @@ export default class ChatService {
     ]);
 
     // Create a unique call ID
-    const channelId = `chat_${clientId}_${lawyerId}_${Date.now()}`;
+    const channelId = `chat_${Date.now()}`;
 
     const newChannel = serverClient.channel("messaging", channelId, {
       name: `Consultation: ${clientId} & ${lawyerId}`,
