@@ -12,6 +12,7 @@ export interface IConsultation extends Document {
   conclusionAndAdvice: string;
   chatId: string;
   disclaimer: string;
+  durationMinutes: number;
   expiredAt: string;
   status: "active" | "expired";
   createdAt: Date;

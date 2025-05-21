@@ -39,6 +39,11 @@ const consultationSchema: Schema<IConsultation> = new Schema(
       type: String,
       required: true,
     },
+    durationMinutes: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
     expiredAt: {
       type: String,
       required: true,

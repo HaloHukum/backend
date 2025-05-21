@@ -123,6 +123,7 @@ export default class ConsultationController {
    *               - conclusionAndAdvice
    *               - chatId
    *               - disclaimer
+   *               - durationMinutes
    *               - expiredAt
    *             properties:
    *               lawyerId:
@@ -137,6 +138,10 @@ export default class ConsultationController {
    *               problemDescription:
    *                 type: string
    *                 example: "Need legal advice regarding a criminal case"
+   *               method:
+   *                 type: string
+   *                 enum: [chat, call, video]
+   *                 example: "chat"
    *               legalBasis:
    *                 type: string
    *                 example: "Based on Criminal Code Article 123"
@@ -152,6 +157,10 @@ export default class ConsultationController {
    *               disclaimer:
    *                 type: string
    *                 example: "Legal disclaimer text"
+   *               durationMinutes:
+   *                 type: number
+   *                 minimum: 0
+   *                 example: 60
    *               expiredAt:
    *                 type: string
    *                 format: date-time
@@ -180,11 +189,15 @@ export default class ConsultationController {
           message: "Unauthorized - User not authenticated",
         });
       }
+      const durationMinutes = req.body.durationMinutes || 60;
+      const expiredAt = await ConsultationService.getExpiredAt(durationMinutes); // output:
 
       const consultation = await ConsultationService.createConsultation({
         ...req.body,
         userId: req.user._id,
         status: "active",
+        durationMinutes,
+        expiredAt,
       });
       res.status(201).json({
         status: "success",
@@ -336,6 +349,103 @@ export default class ConsultationController {
         status: "success",
         message: "Consultation retrieved successfully",
         data: consultation,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+    }
+  }
+
+  /**
+   * @swagger
+   * /consultations/channels/{id}:
+   *   get:
+   *     summary: Get consultation details by chat ID
+   *     tags: [Consultations]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Chat ID to find the consultation
+   *     responses:
+   *       200:
+   *         description: Consultation found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 status:
+   *                   type: string
+   *                   example: success
+   *                 message:
+   *                   type: string
+   *                   example: Consultation retrieved successfully
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     chatId:
+   *                       type: string
+   *                       example: "chat_123"
+   *                     expiredAt:
+   *                       type: string
+   *                       format: date-time
+   *                       example: "2024-12-31T23:59:59Z"
+   *       401:
+   *         description: Unauthorized
+   *       404:
+   *         description: Consultation not found
+   */
+  static async getConsultationByChatId(
+    req: AuthenticatedRequest,
+    res: Response
+  ) {
+    try {
+      if (!req.user?._id) {
+        return res.status(401).json({
+          status: "error",
+          message: "Unauthorized - User not authenticated",
+        });
+      }
+
+      const consultation = await ConsultationService.getConsultationByChatId(
+        req.params.id
+      );
+
+      if (!consultation) {
+        return res.status(404).json({
+          status: "error",
+          message: "Consultation not found",
+        });
+      }
+
+      // Check if user has access to this consultation
+      const isOwner = await ConsultationService.isConsultationOwner(
+        req.params.id,
+        req.user._id.toString(),
+        req.user.role === "lawyer"
+      );
+
+      if (!isOwner) {
+        return res.status(403).json({
+          status: "error",
+          message: "You don't have access to this consultation",
+        });
+      }
+
+      res.status(200).json({
+        status: "success",
+        message: "Consultation retrieved successfully",
+        data: {
+          chatId: consultation.chatId,
+          expiredAt: consultation.expiredAt,
+        },
       });
     } catch (error: any) {
       res.status(500).json({

@@ -11,6 +11,12 @@ export default class ConsultationService {
     return await consultation.save();
   }
 
+  static async getExpiredAt(durationMinutes: number): Promise<string> {
+    const now = new Date();
+    const expiredAt = new Date(now.getTime() + durationMinutes * 60 * 1000);
+    return expiredAt.toISOString();
+  }
+
   static async getConsultations(filters: {
     userId?: string;
     lawyerId?: string;
@@ -60,5 +66,13 @@ export default class ConsultationService {
     return isLawyer
       ? consultation.lawyerId.toString() === userId
       : consultation.userId.toString() === userId;
+  }
+
+  static async getConsultationByChatId(
+    chatId: string
+  ): Promise<IConsultation | null> {
+    return await Consultation.findOne({ chatId })
+      .populate("userId", "fullName")
+      .populate("lawyerId", "fullName");
   }
 }
