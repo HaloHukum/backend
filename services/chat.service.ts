@@ -11,15 +11,16 @@ export default class ChatService {
     await serverClient.upsertUsers([
       {
         id: clientId,
-        role: `client`, 
+        role: `client`,
       },
       {
         id: lawyerId,
-        role: `lawyer`, 
+        role: `lawyer`,
       },
     ]);
 
-    const channelId = `${clientId}_${lawyerId}`;
+    // Create a unique call ID
+    const channelId = `chat_${clientId}_${lawyerId}_${Date.now()}`;
 
     const newChannel = serverClient.channel("messaging", channelId, {
       name: `Consultation: ${clientId} & ${lawyerId}`,
@@ -27,7 +28,7 @@ export default class ChatService {
       created_by_id: "4645",
     });
 
-    await newChannel.create()
+    await newChannel.create();
 
     return {
       channelId,

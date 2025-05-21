@@ -7,6 +7,7 @@ import consultationRoutes from "./consultation.route";
 import lawyerRoutes from "./lawyer.route";
 import reviewRoutes from "./review.route";
 import userRoutes from "./user.route";
+import callRoutes from "./call.route";
 
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.use("/consultations", consultationRoutes);
 router.use("/lawyers", lawyerRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/users", userRoutes);
+router.use("/calls", callRoutes);
 
 export default router;
