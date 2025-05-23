@@ -7,12 +7,14 @@ import chatRoutes from "./chat.route";
 import consultationRoutes from "./consultation.route";
 import lawyerRoutes from "./lawyer.route";
 import reviewRoutes from "./review.route";
+import transactionRoutes from "./transaction.route"
 import userRoutes from "./user.route";
 
 const router = express.Router();
 
 router.use("/", authRoutes);
 router.use("/categories", categoryRoutes);
+router.use("/transaction", transactionRoutes )
 router.use("/chats", chatRoutes);
 router.use("/consultations", consultationRoutes);
 router.use("/lawyers", lawyerRoutes);
