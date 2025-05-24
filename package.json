@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/HaloHukum/backend#readme",
   "dependencies": {
+    "@stream-io/node-sdk": "^0.4.24",
     "@types/cors": "^2.8.18",
     "@types/ioredis": "^5.0.0",
     "@types/nodemailer": "^6.4.17",
@@ -37,11 +38,10 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.13.2",
     "nodemailer": "^6.10.1",
-    "twilio": "^5.6.0",
     "stream-chat": "^9.0.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-
+    "twilio": "^5.6.0",
     "zod": "^3.24.3"
   },
   "devDependencies": {
