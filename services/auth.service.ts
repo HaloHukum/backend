@@ -1,4 +1,4 @@
-import { serverClient } from "../configs/getstream.config";
+import { chatClient } from "../configs/getstream.config";
 import {
   // RegisterResponse,
   // LoginResponse,
@@ -125,8 +125,8 @@ export default class AuthService {
     });
 
     // Create GetStream user
-    const chatToken = serverClient.createToken(user._id.toString());
-    await serverClient.upsertUser({
+    const chatToken = chatClient.createToken(user._id.toString());
+    await chatClient.upsertUser({
       id: user._id.toString(),
       name: user.fullName,
     });
@@ -169,10 +169,10 @@ export default class AuthService {
     }
 
     const access_token = signToken({ id: user._id });
-    const chatToken = serverClient.createToken(user._id.toString());
+    const chatToken = chatClient.createToken(user._id.toString());
 
     // Upsert user in GetStream
-    await serverClient.upsertUser({
+    await chatClient.upsertUser({
       id: user._id.toString(),
       name: user.fullName,
     });

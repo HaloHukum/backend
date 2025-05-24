@@ -427,7 +427,7 @@ export default class ConsultationController {
 
       // Check if user has access to this consultation
       const isOwner = await ConsultationService.isConsultationOwner(
-        req.params.id,
+        consultation.id.toString(),
         req.user._id.toString(),
         req.user.role === "lawyer"
       );
